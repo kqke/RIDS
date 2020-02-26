@@ -11,10 +11,6 @@ public abstract class Protocol implements Runnable {
 
     final private Simulator _sim;
 
-    public Protocol ( Simulator simulator ) {
-        _sim = simulator;
-    }
-
     public void run() {
         while ( _isRun ) {
             if ( ! _communication_channel.isEmpty() )
