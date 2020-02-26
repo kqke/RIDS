@@ -20,7 +20,9 @@ public class Simulator {
 
     private boolean[][] _restrictions;
 
-    public Simulator() {
+    public Simulator( Env env ) {
+        _env = env;
+
         _communication_channel = new ConcurrentLinkedQueue<>();
 
         _servers = new ArrayList<>();
