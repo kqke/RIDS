@@ -1,21 +1,21 @@
 package huji.messages;
 
 public abstract class Message {
-    final private int _from;
-    final private int _to;
+    final public int view;
+    final public int from;
+    final public int to;
 
-    public Message( int from, int to ) {
-        _from = from;
-        _to = to;
+    final public String type;
+
+    public Message( String type, int view, int from, int to ) {
+        this.type = type;
+        this.view = view;
+        this.from = from;
+        this.to = to;
     }
-
-    public int from() { return _from; }
-    public int to() { return _to; }
-
-    abstract public void run();
 
     @Override
     public String toString() {
-        return "message from " + _from + ", to: " + _to;
+        return "message from " + from + ", to: " + to;
     }
 }
