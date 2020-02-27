@@ -9,8 +9,8 @@ public abstract class Message {
         _to = to;
     }
 
-    public int get_from() { return _from; }
-    public int get_to() { return _to; }
+    public int from() { return _from; }
+    public int to() { return _to; }
 
     abstract public void run();
 
