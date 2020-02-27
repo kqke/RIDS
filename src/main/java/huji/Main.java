@@ -1,12 +1,16 @@
 package huji;
 
+import huji.channels.CommunicationChannel;
+import huji.logs.Logger;
+import huji.protocols.replica.PaxosProtocol;
 import huji.simulator.Simulator;
-import huji.protocols.replica.ReplicaProtocol;
 
 public class Main {
     public static void main(String[] args) {
         Simulator simulator = new Simulator()
-                .addServer(ReplicaProtocol.getFactory(),4)
-                .run();
+                .addReplica(PaxosProtocol::new,1)
+                .addChannel(CommunicationChannel::new)
+                .addLogger(Logger::new);
+        simulator.run();
     }
 }

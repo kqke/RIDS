@@ -5,7 +5,6 @@ import huji.logs.Logger;
 
 import java.util.*;
 
-
 public class Simulator {
     private List<Agent> _replicas;
     private List<Agent> _clients;
@@ -43,12 +42,21 @@ public class Simulator {
 
     public Simulator addChannel(Factory<Channel> factory) {
         _communication = factory.getInstance();
+        _communication.setSimulator(this);
         return this;
     }
 
     public Simulator addLogger(Factory<Logger> factory) {
         _logger = factory.getInstance();
         return this;
+    }
+
+    public Protocol getProtocol(int replica) {
+        return _replicas.get(replica).protocol;
+    }
+
+    public Protocol setProtocol(int replica, Protocol protocol) {
+        return _replicas.get(replica).protocol = protocol;
     }
 
     public void run() {

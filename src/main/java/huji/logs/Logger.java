@@ -13,7 +13,7 @@ public class Logger implements Iterable<Log> {
     private Queue<Log> _logs;
     private Listener _listener = null;
 
-    Logger() {
+    public Logger() {
         _logs = new ConcurrentLinkedQueue();
     }
 
