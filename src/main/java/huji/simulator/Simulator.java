@@ -1,8 +1,7 @@
 package huji.simulator;
 
-import huji.interfaces.Factory;
-import huji.interfaces.Protocol;
-import huji.protocols.communication.CommunicationProtocol;
+import huji.interfaces.*;
+import huji.logs.Logger;
 
 import java.util.*;
 
@@ -11,20 +10,20 @@ public class Simulator {
     private List<Agent> _replicas;
     private List<Agent> _clients;
 
-    private CommunicationProtocol _communication;
+    private Channel _communication;
+    private Logger _logger;
 
     public Simulator() {
         _replicas = new ArrayList<>();
         _clients = new ArrayList<>();
-
     }
 
     private void addAgent(List<Agent> list, Factory<Protocol> factory, int times) {
         for ( int i = 0; i < times; i++ ) {
             Agent agent = new Agent();
             agent.protocol = factory.getInstance();
-            agent.protocol.setCommunication();
-            agent.protocol.setLogClass();
+            agent.protocol.setChannel(_communication);
+            agent.protocol.setLogger(_logger);
 
             agent.thread = new Thread( agent.protocol );
 
@@ -42,6 +41,16 @@ public class Simulator {
         return this;
     }
 
+    public Simulator addChannel(Factory<Channel> factory) {
+        _communication = factory.getInstance();
+        return this;
+    }
+
+    public Simulator addLogger(Factory<Logger> factory) {
+        _logger = factory.getInstance();
+        return this;
+    }
+
     public void run() {
         for ( Agent agent : _replicas ) {
             agent.thread.start();
@@ -54,7 +63,7 @@ public class Simulator {
         _communication.run();
     }
 
-    private class Agent {
+    private static class Agent {
         Protocol protocol;
         Thread thread;
     }

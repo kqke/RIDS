@@ -2,21 +2,21 @@ package huji.protocols.replica;
 
 import huji.messages.Message;
 import huji.protocols.AbstractProtocol;
-import huji.protocols.communication.CommunicationProtocol;
+import huji.channels.CommunicationChannel;
 
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-abstract class ReplicaProtocol extends AbstractProtocol {
+public abstract class ReplicaProtocol extends AbstractProtocol {
     private Queue<Message> _in_channel;
-    private CommunicationProtocol _communication = null;
+    private CommunicationChannel _communication = null;
 
     public ReplicaProtocol() {
         super();
         _in_channel = new ConcurrentLinkedQueue<>();
     }
 
-    public void setCommunicationProtocol (CommunicationProtocol communication_protocol) {
+    public void setCommunicationProtocol (CommunicationChannel communication_protocol) {
         this._communication = communication_protocol;
     }
 

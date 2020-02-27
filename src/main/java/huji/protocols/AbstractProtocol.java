@@ -3,7 +3,6 @@ package huji.protocols;
 import huji.interfaces.Log;
 import huji.interfaces.Protocol;
 import huji.logs.Logger;
-import huji.simulator.Simulator;
 
 public abstract class AbstractProtocol implements Protocol {
     private boolean _is_run = true;
@@ -16,7 +15,7 @@ public abstract class AbstractProtocol implements Protocol {
         _logger = logger;
     }
 
-    protected void addLog(Log log) {
+    public void addLog(Log log) {
         _logger.addLog(log);
     }
 
