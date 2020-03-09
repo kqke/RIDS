@@ -20,13 +20,15 @@ public class Simulator {
     private void addAgent(List<Agent> list, Factory<Protocol> factory, int times) {
         for ( int i = 0; i < times; i++ ) {
             Agent agent = new Agent();
+            list.add(agent);
+
+            agent.id = list.size();
+
             agent.protocol = factory.getInstance();
             agent.protocol.setChannel(_communication);
             agent.protocol.setLogger(_logger);
 
             agent.thread = new Thread( agent.protocol );
-
-            list.add(agent);
         }
     }
 
@@ -69,10 +71,5 @@ public class Simulator {
         }
 
         _communication.run();
-    }
-
-    private static class Agent {
-        Protocol protocol;
-        Thread thread;
     }
 }
