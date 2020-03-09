@@ -14,14 +14,9 @@ public abstract class ReplicaProtocol extends AbstractProtocol {
         _in_channel = new ConcurrentLinkedQueue<>();
     }
 
-    protected void outChannel( Message message ) {
+    void outChannel( Message message ) {
         if ( getCommunication() != null )
             getCommunication().sendMessage(message);
-    }
-
-    protected void outChannelToAll( Message message ) {
-        if ( getCommunication() != null )
-            getCommunication().sendMessageToAll(message);
     }
 
     public void inChannel( Message message ) {

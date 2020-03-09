@@ -3,15 +3,18 @@ package huji.simulator;
 import huji.interfaces.Protocol;
 
 public class Agent {
-    int id;
+    final int id;
     Protocol protocol;
     Thread thread;
 
-    public int getId() {
-        return id;
+    Agent(int id) {
+        this.id = id;
+
+        protocol = null;
+        thread = null;
     }
 
-    void setId(int id) {
-        this.id = id;
+    public int getId() {
+        return id;
     }
 }

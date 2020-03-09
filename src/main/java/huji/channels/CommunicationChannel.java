@@ -1,6 +1,7 @@
 package huji.channels;
 
 import huji.interfaces.Channel;
+import huji.interfaces.Protocol;
 import huji.messages.Message;
 import huji.protocols.replica.ReplicaProtocol;
 import huji.simulator.Simulator;
@@ -26,19 +27,18 @@ public class CommunicationChannel implements Channel {
         _communication_channel.add(message);
     }
 
-    public void sendMessageToAll(Message message) {
-        for(int i = 0; i < _simulator.getNumReplicas(); i++) {
-            _communication_channel.add(message);
-        }
-    }
-
     @Override
     public void run() {
         Message message = null;
         while( _is_run ) {
             if ( ! _communication_channel.isEmpty() ) {
                 message = _communication_channel.poll();
-                ((ReplicaProtocol)_simulator.getProtocol( message.to )).inChannel( message );
+                if ( message.to == -1 )
+                    for (Protocol protocol : _simulator.getProtocols()) {
+                        ((ReplicaProtocol)protocol).inChannel( message );
+                    }
+                else
+                    ((ReplicaProtocol)_simulator.getProtocol( message.to )).inChannel( message );
             }
         }
     }
