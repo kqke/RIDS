@@ -4,6 +4,9 @@ import huji.messages.Message;
 import huji.messages.VoteMessage;
 
 public class PaxosProtocol extends ReplicaProtocol {
+
+
+
     @Override
     protected void handle(Message message) {
         switch (message.type) {

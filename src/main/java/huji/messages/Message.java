@@ -1,13 +1,21 @@
 package huji.messages;
 
+enum Type{
+    PROPOSE,
+    ACK,
+    ELECT,
+    VOTE,
+    VC
+}
+
 public abstract class Message {
     final public int view;
     final public int from;
     final public int to;
 
-    final public String type;
+    final public Type type;
 
-    public Message( String type, int view, int from, int to ) {
+    public Message( Type type, int view, int from, int to ) {
         this.type = type;
         this.view = view;
         this.from = from;
