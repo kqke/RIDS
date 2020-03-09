@@ -12,7 +12,7 @@ public class Simulator {
     private Channel _communication;
     private Logger _logger;
 
-    private Generator _secret_generator;
+    private Generator _secrets_generator;
 
     private int _N;
     private int _F;
@@ -86,16 +86,17 @@ public class Simulator {
         _F = i;
     }
 
-    public void setSecretGenerator(Generator generator) {
-        _secret_generator = generator;
+    public Simulator addSecretsGenerator(Factory<Generator> factory) {
+        _secrets_generator = factory.getInstance();
+        return this;
     }
 
     public int getSharedSecret( int view, int id ) {
-        return _secret_generator.encode(view,id);
+        return _secrets_generator.encode(view,id);
     }
 
     public int getSecret( int view, Map<Integer, Integer> shared_secrets ) {
-        return _secret_generator.decode(view, shared_secrets);
+        return _secrets_generator.decode(view, shared_secrets);
     }
 
     public void run() {
