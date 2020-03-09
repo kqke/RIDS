@@ -26,8 +26,10 @@ public class CommunicationChannel implements Channel {
         _communication_channel.add(message);
     }
 
-    public void sendMessageToAll(Message message ) {
-        _communication_channel.add(message);
+    public void sendMessageToAll(Message message) {
+        for(int i = 0; i < _simulator.getNumReplicas(); i++) {
+            _communication_channel.add(message);
+        }
     }
 
     @Override

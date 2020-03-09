@@ -8,4 +8,6 @@ public class ElectMessage extends Message{
         super(Type.ELECT, view, from, to);
         this.share = share;
     }
+
+
 }

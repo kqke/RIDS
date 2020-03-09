@@ -61,6 +61,10 @@ public class Simulator {
         return _replicas.get(replica).protocol = protocol;
     }
 
+    public int getNumReplicas() {
+        return _replicas.size();
+    }
+
     public void run() {
         for ( Agent agent : _replicas ) {
             agent.thread.start();
