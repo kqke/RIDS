@@ -4,6 +4,7 @@ import huji.interfaces.Channel;
 import huji.interfaces.Log;
 import huji.interfaces.Protocol;
 import huji.logs.Logger;
+import huji.messages.Message;
 import huji.simulator.Agent;
 
 public abstract class AbstractProtocol implements Protocol {

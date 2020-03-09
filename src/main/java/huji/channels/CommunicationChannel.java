@@ -26,6 +26,10 @@ public class CommunicationChannel implements Channel {
         _communication_channel.add(message);
     }
 
+    public void sendMessageToAll(Message message ) {
+        _communication_channel.add(message);
+    }
+
     @Override
     public void run() {
         Message message = null;

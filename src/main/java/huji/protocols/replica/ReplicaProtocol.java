@@ -19,6 +19,11 @@ public abstract class ReplicaProtocol extends AbstractProtocol {
             getCommunication().sendMessage(message);
     }
 
+    protected void outChannelToAll( Message message ) {
+        if ( getCommunication() != null )
+            getCommunication().sendMessageToAll(message);
+    }
+
     public void inChannel( Message message ) {
         _in_channel.add(message);
     }
