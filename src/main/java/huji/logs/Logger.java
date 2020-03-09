@@ -14,7 +14,7 @@ public class Logger implements Iterable<Log> {
     private Listener _listener = null;
 
     public Logger() {
-        _logs = new ConcurrentLinkedQueue();
+        _logs = new ConcurrentLinkedQueue<>();
     }
 
     public void addLog( Log log ) {
