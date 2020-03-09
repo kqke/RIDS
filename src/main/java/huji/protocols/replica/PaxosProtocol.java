@@ -11,10 +11,32 @@ public class PaxosProtocol extends ReplicaProtocol {
     private int view;
     private Map<Integer,String> decided;
 
+    private List<String> _values;
+    private Map<Integer, Integer> _secrets;
+    private Map<Integer, int[]> _decision_counters;
+
+    private int _secrets_counter;
+    private int _ack_counter;
+
+    private boolean _is_decide;
+
     public PaxosProtocol() {
         super();
         decided = new HashMap<>();
         _decision_counters = new HashMap<>();
+
+        view = 0;
+        viewChange();
+    }
+
+    private void viewChange() {
+        _values = new ArrayList<>( N() );
+        _secrets = new HashMap<>();
+
+        _ack_counter = F() + 1;
+        _secrets_counter = F() + 1;
+
+        _is_decide = false;
     }
 
     @Override
@@ -40,7 +62,6 @@ public class PaxosProtocol extends ReplicaProtocol {
         }
     }
 
-    private List<String> _values;
     private void proposeMessage(ProposeMessage message) {
         if ( viewChangeIfNeeded(message) )
             return;
@@ -51,37 +72,33 @@ public class PaxosProtocol extends ReplicaProtocol {
         );
     }
 
-    private int _ack_counter;
     private void ackMessage(AckMessage message) {
         if ( viewChangeIfNeeded(message) )
             return;
 
         if (0 == --_ack_counter) {
             outChannel(
-                    new ElectMessage(view, id(), -1, 0)
+                    new ElectMessage(view, id(), -1, getShareSecret(view))
             );
         }
     }
 
-    private List<Integer> _secrets;
-    private int _secrets_counter;
     private void electMessage(ElectMessage message) {
         if ( viewChangeIfNeeded(message) )
             return;
 
-        _secrets.add( message.from, message.share );
+        _secrets.put( message.from, message.share );
         if ( 0 == --_secrets_counter ) {
             decide();
         }
     }
 
-    private boolean _is_decide;
     private void decide() {
         if ( _is_decide )
             return;
         _is_decide = true;
 
-        int elected = 0;
+        int elected = getSecret( view, _secrets );
         outChannel(
                 ( _values.get( elected ) != null ) ?
                         new VoteMessage( view, id(), -1, _values.get(elected) ) :
@@ -89,7 +106,6 @@ public class PaxosProtocol extends ReplicaProtocol {
         );
     }
 
-    private Map<Integer,int[]> _decision_counters;
     private void voteMessage(VoteMessage message) {
         viewChangeIfNeeded(message);
 
@@ -123,15 +139,5 @@ public class PaxosProtocol extends ReplicaProtocol {
         }
 
         return false;
-    }
-
-    private void viewChange() {
-        _values = new ArrayList<>( N() );
-        _secrets = new ArrayList<>( N() );
-
-        _ack_counter = F() + 1;
-        _secrets_counter = F() + 1;
-
-        _is_decide = false;
     }
 }

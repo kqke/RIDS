@@ -9,8 +9,6 @@ public interface Protocol extends Runnable {
     void addLog(Log log);
 
     void setChannel(Channel communication);
-
     void setSimulator(Simulator simulator);
-
     void setAgent(Agent agent);
 }

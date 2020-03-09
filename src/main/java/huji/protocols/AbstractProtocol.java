@@ -7,6 +7,8 @@ import huji.logs.Logger;
 import huji.simulator.Agent;
 import huji.simulator.Simulator;
 
+import java.util.Map;
+
 public abstract class AbstractProtocol implements Protocol {
     private boolean _is_run = true;
     private Logger _logger;
@@ -60,6 +62,14 @@ public abstract class AbstractProtocol implements Protocol {
 
     protected int F() {
         return _simulator.getNumFailures();
+    }
+
+    protected int getShareSecret( int view ) {
+        return _simulator.getSharedSecret( view, id() );
+    }
+
+    protected int getSecret(int view, Map<Integer, Integer> shared_secrets) {
+        return _simulator.getSecret(view, shared_secrets);
     }
 
     public void shutdown() {

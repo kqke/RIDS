@@ -12,7 +12,7 @@ public class Simulator {
     private Channel _communication;
     private Logger _logger;
 
-    private Election _election_box;
+    private Generator _secret_generator;
 
     private int _N;
     private int _F;
@@ -86,8 +86,16 @@ public class Simulator {
         _F = i;
     }
 
-    public void setElectionBox( Election election ) {
-        _election_box = election;
+    public void setSecretGenerator(Generator generator) {
+        _secret_generator = generator;
+    }
+
+    public int getSharedSecret( int view, int id ) {
+        return _secret_generator.encode(view,id);
+    }
+
+    public int getSecret( int view, Map<Integer, Integer> shared_secrets ) {
+        return _secret_generator.decode(view, shared_secrets);
     }
 
     public void run() {
