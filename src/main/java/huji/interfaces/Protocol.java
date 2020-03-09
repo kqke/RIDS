@@ -1,6 +1,7 @@
 package huji.interfaces;
 
-import huji.logs.Logger;
+import huji.logger.logs.Log;
+import huji.logger.Logger;
 import huji.simulator.Agent;
 import huji.simulator.Simulator;
 

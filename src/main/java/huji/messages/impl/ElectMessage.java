@@ -1,6 +1,9 @@
-package huji.messages;
+package huji.messages.impl;
 
-public class ElectMessage extends Message{
+import huji.messages.Message;
+import huji.messages.Type;
+
+public class ElectMessage extends Message {
     final public int share;
 
     public ElectMessage(int view, int from, int to, int share) {

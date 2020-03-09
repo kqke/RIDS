@@ -1,4 +1,7 @@
-package huji.messages;
+package huji.messages.impl;
+
+import huji.messages.Message;
+import huji.messages.Type;
 
 public class AckMessage extends Message {
 

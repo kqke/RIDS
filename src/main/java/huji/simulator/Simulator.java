@@ -1,7 +1,7 @@
 package huji.simulator;
 
 import huji.interfaces.*;
-import huji.logs.Logger;
+import huji.logger.Logger;
 
 import java.util.*;
 
@@ -59,6 +59,7 @@ public class Simulator {
 
     public Simulator addLogger(Factory<Logger> factory) {
         _logger = factory.getInstance();
+
         return this;
     }
 

@@ -1,6 +1,9 @@
-package huji.messages;
+package huji.messages.impl;
 
-public class ProposeMessage extends Message{
+import huji.messages.Message;
+import huji.messages.Type;
+
+public class ProposeMessage extends Message {
 
     final public String value;
 

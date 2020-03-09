@@ -1,7 +1,8 @@
-package huji.logs;
+package huji.logger;
 
 import huji.interfaces.Listener;
-import huji.interfaces.Log;
+import huji.logger.logs.Log;
+import huji.simulator.Simulator;
 
 import java.util.Iterator;
 import java.util.Queue;
@@ -13,7 +14,9 @@ public class Logger implements Iterable<Log> {
     private Queue<Log> _logs;
     private Listener _listener = null;
 
-    public Logger() {
+    private Simulator _simulator;
+
+    Logger() {
         _logs = new ConcurrentLinkedQueue<>();
     }
 
@@ -23,8 +26,13 @@ public class Logger implements Iterable<Log> {
         _logs.add(log);
     }
 
-    public void setListener ( Listener listener ) {
+    public void setSimulator( Simulator simulator ) {
+        _simulator = simulator;
+    }
+
+    void setListener ( Listener listener ) {
         _listener = listener;
+        _listener.setSimulator( _simulator );
     }
 
     @Override
