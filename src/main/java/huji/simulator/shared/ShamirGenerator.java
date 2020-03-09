@@ -2,6 +2,7 @@ package huji.simulator.shared;
 
 import huji.interfaces.Generator;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
@@ -70,6 +71,24 @@ public class ShamirGenerator implements Generator {
 
     @Override
     public int decode(int view, Map<Integer, Integer> shared_secrets) {
-        return 0;
+        int enumerator = 1;
+        float result = 0;
+
+        for(Integer i : shared_secrets.keySet()){
+            enumerator *= (i + 1);
+        }
+
+        for(Map.Entry<Integer, Integer> entry : shared_secrets.entrySet()){
+            int denominator = 1;
+            int i = entry.getKey();
+            for(int j : shared_secrets.keySet()){
+                if(i != j){
+                    denominator *= (j - i);
+                }
+            }
+            result += (float)(entry.getValue() * enumerator) / denominator;
+        }
+
+        return Math.round(result) % P;
     }
 }
