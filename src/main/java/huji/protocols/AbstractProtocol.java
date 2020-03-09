@@ -59,7 +59,7 @@ public abstract class AbstractProtocol implements Protocol {
     }
 
     protected int F() {
-        return _simulator.getNumReplicas();
+        return _simulator.getNumFailures();
     }
 
     public void shutdown() {

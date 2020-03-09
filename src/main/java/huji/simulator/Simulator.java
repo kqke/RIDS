@@ -12,9 +12,10 @@ public class Simulator {
     private Channel _communication;
     private Logger _logger;
 
+    private Election _election_box;
+
     private int _N;
     private int _F;
-    private int _currF;
 
     public Simulator() {
         _replicas = new ArrayList<>();
@@ -22,7 +23,6 @@ public class Simulator {
 
         _N = 0;
         _F = 0;
-        _currF = 0;
     }
 
     private void addAgent(List<Agent> list, Factory<Protocol> factory, int times) {
@@ -84,6 +84,10 @@ public class Simulator {
 
     public void setNumFailures( int i ) {
         _F = i;
+    }
+
+    public void setElectionBox( Election election ) {
+        _election_box = election;
     }
 
     public void run() {

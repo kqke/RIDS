@@ -14,7 +14,6 @@ public class PaxosProtocol extends ReplicaProtocol {
     public PaxosProtocol() {
         super();
         decided = new HashMap<>();
-
         _decision_counters = new HashMap<>();
     }
 
