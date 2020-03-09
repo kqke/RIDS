@@ -2,6 +2,8 @@ package huji.simulator;
 
 import huji.interfaces.*;
 import huji.logger.Logger;
+import huji.logger.logs.Log;
+import huji.logger.logs.Type;
 
 import java.util.*;
 
@@ -67,8 +69,13 @@ public class Simulator {
         return _replicas.get(replica).protocol;
     }
 
-    public Protocol[] getProtocols() {
-        return (Protocol[])_replicas.parallelStream().map( agent -> agent.protocol ).toArray();
+    public Iterable<Protocol> getProtocols() {
+        List<Protocol> protocols = new LinkedList<>();
+
+        for ( Agent replica : _replicas )
+            protocols.add( replica.protocol );
+
+        return protocols;
     }
 
     public Protocol setProtocol(int replica, Protocol protocol) {
@@ -102,15 +109,34 @@ public class Simulator {
 
     public void run() {
         _N = _replicas.size();
-
-        for ( Agent agent : _replicas ) {
-            agent.thread.start();
-        }
+        _logger.addLog(
+                new Log(Type.START_RUN).parameter("replicas",_N)
+        );
 
         for ( Agent agent : _clients ) {
             agent.thread.start();
         }
 
+        for ( Agent agent : _replicas ) {
+            agent.thread.start();
+        }
+
         _communication.run();
+
+        for ( Log log : _logger ) {
+            System.out.println( log );
+        }
+    }
+
+    public void shutdown() {
+        for ( Agent agent : _replicas ) {
+            agent.protocol.shutdown();
+        }
+
+        for ( Agent agent : _clients ) {
+            agent.protocol.shutdown();
+        }
+
+        _communication.shutdown();
     }
 }

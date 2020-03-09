@@ -1,18 +1,24 @@
 package huji.logger.logs;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class Log {
-    Map<String,Object> parameters;
+    private Map<String,Object> parameters;
+    final public Type type;
 
-    public Log() {}
+    public Log(Type type) {
+        parameters = new HashMap<>();
+        this.type = type;
+    }
 
-    public void addParameter( String key, Object value ) {
+    public Log parameter( String key, Object value ) {
         parameters.putIfAbsent(key, value);
+        return this;
     }
 
     @Override
     public String toString() {
-        return parameters.toString();
+        return type.toString() + " " + parameters.toString();
     }
 }

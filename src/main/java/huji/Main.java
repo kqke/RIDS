@@ -10,10 +10,10 @@ import huji.simulator.shared.ShamirGenerator;
 public class Main {
     public static void main(String[] args) {
         Simulator simulator = new Simulator()
+                .addLogger(BasicLogger::new)
+                .addChannel(CommunicationChannel::new)
                 .addReplica(PaxosProtocol::new,5)
                 .addClient(ClientProtocol::new,5)
-                .addChannel(CommunicationChannel::new)
-                .addLogger(BasicLogger::new)
                 .addSecretsGenerator( () -> new ShamirGenerator(5,1) );
         simulator.run();
     }

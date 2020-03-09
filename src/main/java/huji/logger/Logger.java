@@ -24,6 +24,7 @@ public class Logger implements Iterable<Log> {
         if ( _listener != null )
             _listener.handle(log);
         _logs.add(log);
+        System.out.println(log);
     }
 
     public void setSimulator( Simulator simulator ) {

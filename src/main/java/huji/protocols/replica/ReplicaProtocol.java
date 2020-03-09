@@ -28,6 +28,7 @@ public abstract class ReplicaProtocol extends AbstractProtocol {
 
     @Override
     public void run() {
+        viewChange();
         offer();
         while( isRun() ) {
             if ( ! _in_channel.isEmpty() ) {
@@ -51,4 +52,6 @@ public abstract class ReplicaProtocol extends AbstractProtocol {
     void clientMessage(ClientMessage message) {
         _clients_messages.add(message.value);
     }
+
+    abstract void viewChange();
 }

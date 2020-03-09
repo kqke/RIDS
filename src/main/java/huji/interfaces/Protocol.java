@@ -12,4 +12,6 @@ public interface Protocol extends Runnable {
     void setChannel(Channel communication);
     void setSimulator(Simulator simulator);
     void setAgent(Agent agent);
+
+    void shutdown();
 }

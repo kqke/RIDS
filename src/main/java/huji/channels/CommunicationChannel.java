@@ -42,4 +42,8 @@ public class CommunicationChannel implements Channel {
             }
         }
     }
+
+    public void shutdown() {
+        _is_run = false;
+    }
 }

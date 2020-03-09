@@ -44,8 +44,9 @@ public class ShamirGenerator implements Generator {
 
     @Override
     public int encode(int view, int id) {
+        polynomials.putIfAbsent(view, randomize());
         return compute(
-                polynomials.putIfAbsent(view, randomize()),
+                polynomials.get(view),
                 ++id
         );
     }
