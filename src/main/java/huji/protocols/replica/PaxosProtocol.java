@@ -1,5 +1,6 @@
 package huji.protocols.replica;
 
+import huji.generators.Generator;
 import huji.messages.Message;
 import huji.messages.MessageType;
 import huji.messages.ViewMessage;
@@ -42,6 +43,8 @@ public class PaxosProtocol extends ReplicaProtocol {
             default:
                 throw new IllegalStateException("Unexpected value: " + message.messageType);
         }
+
+        return true;
     }
 
     private void proposeMessage(ViewMessage message) {
@@ -57,7 +60,7 @@ public class PaxosProtocol extends ReplicaProtocol {
             return;
 
         if ( resources.countdownACK() )
-            sendToAll(MessageType.ELECT, getShareSecret(view));
+            sendToAll(MessageType.ELECT, getShareableSecret() );
     }
 
     private void electMessage(ViewMessage message) {
@@ -66,7 +69,7 @@ public class PaxosProtocol extends ReplicaProtocol {
 
         resources.add( message.from, Integer.parseInt(message.body) );
         if ( resources.countdownELECT() ) {
-            int elected = getSecret( view, _secrets );
+            int elected = getSecret();
 
             if ( resources.contains( elected ) )
                 sendToAll( MessageType.VOTE, resources.get(elected));
@@ -78,7 +81,7 @@ public class PaxosProtocol extends ReplicaProtocol {
     private void voteMessage(ViewMessage message) {
         viewChangeIfNeeded(message);
 
-        if ( counters.voteCountdown( view() ) ) {
+        if ( counters.voteCountdown( view(), N() - F() ) ) {
             decide(message.body);
             increaseView();
             viewChange();
@@ -88,7 +91,7 @@ public class PaxosProtocol extends ReplicaProtocol {
     private void vcMessage(ViewMessage message) {
         viewChangeIfNeeded(message);
 
-        if ( counters.vcCountdown( view() ) ) {
+        if ( counters.vcCountdown( view(), N() - F() ) ) {
             increaseView();
             viewChange();
         }
@@ -109,5 +112,19 @@ public class PaxosProtocol extends ReplicaProtocol {
         }
 
         return false;
+    }
+
+    // Shamir
+
+    private Generator getShamirEncoderDecoder() {
+        return (Generator) getSharedInformation("generator");
+    }
+
+    private String getShareableSecret() {
+        return Integer.toString( getShamirEncoderDecoder().encode( view(), id() ) );
+    }
+
+    private int getSecret() {
+        return getShamirEncoderDecoder().decode( view(), resources.getShared() );
     }
 }

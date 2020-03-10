@@ -34,6 +34,10 @@ public class ViewResources {
         return values.get(replica);
     }
 
+    public Map<Integer,Integer> getShared() {
+        return shared;
+    }
+
     public boolean countdownACK() {
         return 0 == --ack_counter;
     }

@@ -10,17 +10,17 @@ public class DecisionCounters {
         decision_counters = new HashMap<>();
     }
 
-    public boolean voteCountdown( int view ) {
-        return countdown( view, 0 );
+    public boolean voteCountdown( int view, int start_value ) {
+        return countdown( view, 0, start_value );
     }
 
-    public boolean vcCountdown( int view ) {
-        return countdown( view, 1 );
+    public boolean vcCountdown( int view, int start_value ) {
+        return countdown( view, 1, start_value );
     }
 
-    private boolean countdown( int view, int idx ) {
+    private boolean countdown( int view, int idx, int start_value ) {
         int[] counters;
-        if ( ( counters = get(view) ) == null )
+        if ( ( counters = get(view, start_value) ) == null )
             return false;
 
         if ( 0 != --counters[idx] )
@@ -30,8 +30,8 @@ public class DecisionCounters {
         return true;
     }
 
-    private int[] get( int view ) {
-        decision_counters.putIfAbsent( view, new int[]{ 1, 1} );
+    private int[] get( int view, int start_value ) {
+        decision_counters.putIfAbsent( view, new int[]{ start_value, start_value } );
 
         return decision_counters.get( view );
     }

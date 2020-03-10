@@ -84,6 +84,16 @@ public abstract class ReplicaProtocol extends CommunicationAbleProtocol {
         return false;
     }
 
+    // Shared Information
+
+    protected int N() {
+        return (Integer) getSharedInformation("N");
+    }
+
+    protected int F() {
+        return (Integer) getSharedInformation("F");
+    }
+
     // Process
 
     @Override

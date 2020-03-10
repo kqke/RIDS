@@ -30,8 +30,12 @@ public abstract class Protocol extends Process {
         this.environment = environment;
     }
 
-    public Environment getEnvironment() {
+    protected Environment getEnvironment() {
         return environment;
+    }
+
+    protected Object getSharedInformation( String key ) {
+        return environment.getSharedInformation(key);
     }
 
     // Events

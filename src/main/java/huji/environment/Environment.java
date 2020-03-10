@@ -30,7 +30,7 @@ public abstract class Environment extends Process {
         shared_information.put(key, info);
     }
 
-    public Object getShared( String key ) {
+    public Object getSharedInformation(String key ) {
         return shared_information.get(key);
     }
 

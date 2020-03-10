@@ -1,5 +1,6 @@
 package huji.events;
 
 public enum EventType {
-    ENVIRONMENT_CLOSED
+    ENVIRONMENT_CLOSED,
+    DECIDE
 }
