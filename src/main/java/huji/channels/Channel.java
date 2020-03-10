@@ -1,11 +1,21 @@
 package huji.channels;
 
+import huji.environment.Environment;
+import huji.interfaces.Process;
 import huji.messages.Message;
-import huji.simulator.Simulator;
 
-public interface Channel extends Runnable {
-    void setSimulator(Simulator simulator);
-    void sendMessage(Message message);
+public abstract class Channel<T extends Message> extends Process {
+    private Environment environment;
 
-    void shutdown();
+    Channel() {
+        environment = null;
+    }
+
+    public void setEnvironment(Environment environment) {
+        this.environment = environment;
+    }
+
+    public void send ( T message ) {
+        environment.getAgentProtocol( message.to ).receive( message );
+    }
 }

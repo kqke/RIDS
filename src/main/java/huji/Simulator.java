@@ -1,21 +1,25 @@
-package huji.simulator;
+package huji;
 
 import huji.channels.Channel;
+import huji.channels.CommunicationChannel;
+import huji.environment.agent.Agent;
 import huji.interfaces.*;
+import huji.logger.BasicLogger;
 import huji.logger.Logger;
 import huji.logger.logs.Log;
 import huji.logger.logs.Type;
 import huji.protocols.Protocol;
+import huji.protocols.clients.ClientAbleProtocol;
+import huji.protocols.replica.PaxosProtocol;
 import huji.simulator.shared.Generator;
+import huji.simulator.shared.ShamirGenerator;
 
 import java.util.*;
 
 public class Simulator {
-    private List<Agent> _replicas;
-    private List<Agent> _clients;
-
-    private Channel _communication;
-    private Logger _logger;
+    private final int N = 5;
+    private final int F = 0;
+    private Logger logger;
 
     private Generator _secrets_generator;
 
@@ -141,5 +145,15 @@ public class Simulator {
         }
 
         _communication.shutdown();
+    }
+
+    public static void main(String[] args) {
+        Simulator simulator = new Simulator()
+                .addLogger(BasicLogger::new)
+                .addChannel(CommunicationChannel::new)
+                .addReplica(PaxosProtocol::new,5)
+                .addClient(ClientAbleProtocol::new,5)
+                .addSecretsGenerator( () -> new ShamirGenerator(5,1) );
+        simulator.run();
     }
 }

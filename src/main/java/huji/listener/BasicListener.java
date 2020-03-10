@@ -2,7 +2,7 @@ package huji.listener;
 
 import huji.logger.logs.Log;
 import huji.logger.logs.Type;
-import huji.simulator.Simulator;
+import huji.Simulator;
 
 public class BasicListener implements Listener {
     private Simulator simulator;

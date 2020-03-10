@@ -1,6 +1,6 @@
 package huji.messages;
 
-public enum Type {
+public enum MessageType {
     CLIENT,
     PROPOSE,
     ACK,

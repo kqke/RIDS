@@ -1,21 +1,41 @@
 package huji.messages;
 
-public abstract class Message {
-    final public int view;
+import huji.interfaces.Delayable;
+
+public class Message extends Delayable {
     final public int from;
     final public int to;
 
-    final public Type type;
+    final public MessageType messageType;
+    final public String body;
 
-    public Message( Type type, int view, int from, int to ) {
-        this.type = type;
-        this.view = view;
+    public Message( MessageType messageType, int from, int to, String body ) {
+        super();
+
+        this.messageType = messageType;
         this.from = from;
         this.to = to;
+        this.body = ( body != null ) ? body : "";
+    }
+
+    public Message(MessageType messageType, int from, int to ) {
+        this(messageType,from, to, "");
+    }
+
+    public Message(MessageType messageType, int from, String body ) {
+        this(messageType,from, -1, body);
+    }
+
+    public Message(MessageType messageType, int from ) {
+        this(messageType,from, -1, "");
+    }
+
+    public Message copy( int to ) {
+        return new Message( messageType, from, to, body );
     }
 
     @Override
     public String toString() {
-        return "message from " + from + ", to: " + to;
+        return "Message{ from:" + from +  ", to:" + to + ", messageType:" + messageType + ", body: + " + body + "}";
     }
 }

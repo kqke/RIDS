@@ -2,7 +2,7 @@ package huji.logger;
 
 import huji.listener.Listener;
 import huji.logger.logs.Log;
-import huji.simulator.Simulator;
+import huji.Simulator;
 
 import java.util.Iterator;
 import java.util.Queue;

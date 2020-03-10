@@ -1,81 +1,52 @@
 package huji.protocols.replica;
 
-import huji.logger.logs.Log;
-import huji.logger.logs.Type;
-import huji.messages.*;
-import huji.messages.impl.*;
+import huji.messages.Message;
+import huji.messages.ViewMessage;
 
 import java.util.*;
 
 public class PaxosProtocol extends ReplicaProtocol {
-    private int view;
-    private Map<Integer,String> decided;
+    private String[] values;
+    private Map<Integer, Integer> secrets;
+    private Map<Integer, int[]> decision_counters;
 
-    private String[] _values;
-    private Map<Integer, Integer> _secrets;
-    private Map<Integer, int[]> _decision_counters;
-
-    private int _secrets_counter;
-    private int _ack_counter;
+    private int secrets_counter;
+    private int ack_counter;
 
     public PaxosProtocol() {
         super();
-        decided = new HashMap<>();
-        _decision_counters = new HashMap<>();
-
-        view = 0;
+        decision_counters = new HashMap<>();
     }
 
     @Override
-    protected void offer() {
-        outChannel(
-                new ProposeMessage(view, id(), -1, getClientMessage())
-        );
-        addLog(
-                new Log(Type.NEW_MESSAGE)
-                        .parameter("id",id())
-                        .parameter("view",view)
-                        .parameter("type","propose")
-                        .parameter("message", getClientMessage())
-        );
-    }
+    protected boolean handle(Message message) {
+        if ( super.handle(message) )
+            return true;
 
-    @Override
-    protected void handle(Message message) {
-        switch (message.type) {
-            case CLIENT:
-                clientMessage((ClientMessage)message);
-                break;
+        ViewMessage view_message = (ViewMessage) message;
+
+        switch (message.messageType) {
             case PROPOSE:
-                proposeMessage((ProposeMessage)message);
+                proposeMessage(view_message);
                 break;
             case ACK:
-                ackMessage((AckMessage)message);
+                ackMessage(view_message);
                 break;
             case ELECT:
-                electMessage((ElectMessage)message);
+                electMessage(view_message);
                 break;
             case VOTE:
-                voteMessage((VoteMessage)message);
+                voteMessage(view_message);
                 break;
             case VC:
-                vcMessage((ViewChangeMessage)message);
+                vcMessage(view_message);
                 break;
             default:
-                throw new IllegalStateException("Unexpected value: " + message.type);
+                throw new IllegalStateException("Unexpected value: " + message.messageType);
         }
     }
 
-    private void proposeMessage(ProposeMessage message) {
-        addLog(
-                new Log(Type.GOT_MESSAGE)
-                        .parameter("id",id())
-                        .parameter("view",view)
-                        .parameter("from",message.from)
-                        .parameter("type","propose")
-                        .parameter("value",message.value)
-                        .parameter("msg_view",message.view)
-        );
+    private void proposeMessage(ViewMessage message) {
         if ( viewChangeIfNeeded(message) )
             return;
 
@@ -83,24 +54,9 @@ public class PaxosProtocol extends ReplicaProtocol {
         outChannel(
                 new AckMessage(view, id(), message.from)
         );
-        addLog(
-                new Log(Type.NEW_MESSAGE)
-                        .parameter("id",id())
-                        .parameter("view",view)
-                        .parameter("type","ack")
-                        .parameter("to",message.from)
-        );
     }
 
-    private void ackMessage(AckMessage message) {
-        addLog(
-                new Log(Type.GOT_MESSAGE)
-                        .parameter("id",id())
-                        .parameter("view",view)
-                        .parameter("from",message.from)
-                        .parameter("type","ack")
-                        .parameter("msg_view",message.view)
-        );
+    private void ackMessage(ViewMessage message) {
         if ( viewChangeIfNeeded(message) )
             return;
 
@@ -108,25 +64,10 @@ public class PaxosProtocol extends ReplicaProtocol {
             outChannel(
                     new ElectMessage(view, id(), -1, getShareSecret(view))
             );
-            addLog(
-                    new Log(Type.NEW_MESSAGE)
-                            .parameter("id",id())
-                            .parameter("view",view)
-                            .parameter("type","elect")
-            );
         }
     }
 
-    private void electMessage(ElectMessage message) {
-        addLog(
-                new Log(Type.GOT_MESSAGE)
-                        .parameter("id",id())
-                        .parameter("view",view)
-                        .parameter("from",message.from)
-                        .parameter("type","elect")
-                        .parameter("share",message.share)
-                        .parameter("msg_view",message.view)
-        );
+    private void electMessage(ViewMessage message) {
         if ( viewChangeIfNeeded(message) )
             return;
 
@@ -138,25 +79,10 @@ public class PaxosProtocol extends ReplicaProtocol {
                             new VoteMessage( view, id(), -1, _values[ elected ] ) :
                             new ViewChangeMessage( view, id(), -1 )
             );
-            addLog(
-                    new Log(Type.NEW_MESSAGE)
-                            .parameter("id",id())
-                            .parameter("view",view)
-                            .parameter("type", ( _values[ elected ] != null ) ? "vote" : "vc")
-            );
         }
     }
 
-    private void voteMessage(VoteMessage message) {
-        addLog(
-                new Log(Type.GOT_MESSAGE)
-                        .parameter("id",id())
-                        .parameter("view",view)
-                        .parameter("from",message.from)
-                        .parameter("type","vote")
-                        .parameter("value",message.value)
-                        .parameter("msg_view",message.view)
-        );
+    private void voteMessage(ViewMessage message) {
         viewChangeIfNeeded(message);
 
         int[] counters = getCounters(message.view);
@@ -166,27 +92,12 @@ public class PaxosProtocol extends ReplicaProtocol {
             if ( message.value.equals( getClientMessage() ) )
                 deleteClientMessage();
 
-            addLog(
-                    new Log(Type.DECIDE)
-                            .parameter("id",id())
-                            .parameter("view",view)
-                            .parameter("value",message.value)
-            );
-
             ++view;
             viewChange();
         }
     }
 
-    private void vcMessage(ViewChangeMessage message) {
-        addLog(
-                new Log(Type.GOT_MESSAGE)
-                        .parameter("id",id())
-                        .parameter("view",view)
-                        .parameter("from",message.from)
-                        .parameter("type","vc")
-                        .parameter("msg_view",message.view)
-        );
+    private void vcMessage(ViewMessage message) {
         viewChangeIfNeeded(message);
 
         int[] counters = getCounters(message.view);
@@ -222,11 +133,5 @@ public class PaxosProtocol extends ReplicaProtocol {
 
         _ack_counter = F() + 1;
         _secrets_counter = F() + 1;
-
-        addLog(
-                new Log(Type.VIEW_CHANGE)
-                        .parameter("id",id())
-                        .parameter("view",view)
-        );
     }
 }

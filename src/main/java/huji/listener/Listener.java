@@ -1,7 +1,7 @@
 package huji.listener;
 
 import huji.logger.logs.Log;
-import huji.simulator.Simulator;
+import huji.Simulator;
 
 public interface Listener {
     void handle( Log log );

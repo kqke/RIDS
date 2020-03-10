@@ -1,18 +1,42 @@
 package huji.protocols;
 
-import huji.channels.Channel;
-import huji.logger.logs.Log;
-import huji.logger.Logger;
-import huji.simulator.Agent;
-import huji.simulator.Simulator;
+import huji.environment.Environment;
+import huji.events.EventType;
+import huji.interfaces.Process;
 
-public interface Protocol extends Runnable {
-    void setLogger(Logger logger);
-    void addLog(Log log);
+public abstract class Protocol extends Process {
+    private int id;
 
-    void setChannel(Channel communication);
-    void setSimulator(Simulator simulator);
-    void setAgent(Agent agent);
+    private Environment environment;
 
-    void shutdown();
+    Protocol() {
+        super();
+        environment = null;
+    }
+
+    // Identity
+
+    public void setIdentity( int id ) {
+        this.id = id;
+    }
+
+    protected int id() {
+        return id;
+    }
+
+    // Environment
+
+    public void setEnvironment(Environment environment) {
+        this.environment = environment;
+    }
+
+    public Environment getEnvironment() {
+        return environment;
+    }
+
+    // Events
+
+    public void event ( EventType type, String information ) {
+        environment.event( type, information );
+    }
 }

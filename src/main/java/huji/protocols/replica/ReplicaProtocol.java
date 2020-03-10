@@ -1,57 +1,71 @@
 package huji.protocols.replica;
 
-import huji.messages.impl.ClientMessage;
-import huji.messages.Message;
-import huji.protocols.AbstractProtocol;
+import huji.messages.*;
+import huji.protocols.CommunicationAbleProtocol;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
-public abstract class ReplicaProtocol extends AbstractProtocol {
-    private Queue<Message> _in_channel;
-    private Queue<String> _clients_messages;
+public abstract class ReplicaProtocol extends CommunicationAbleProtocol {
+    private Map<Integer,String> decided;
+    private Queue<String> clients_messages;
+    private boolean has_proposed_this_view;
+    private int view;
 
     ReplicaProtocol() {
         super();
-        _in_channel = new ConcurrentLinkedQueue<>();
-        _clients_messages = new ConcurrentLinkedQueue<>();
+
+        this.decided = new HashMap<>();
+        this.clients_messages = new ConcurrentLinkedQueue<>();
+        this.has_proposed_this_view = false;
+        this.view = 0;
     }
 
-    void outChannel( Message message ) {
-        if ( getCommunication() != null )
-            getCommunication().sendMessage(message);
+    // Decide
+
+    protected void decide( String value ) {
+        decided.put(view, value);
+
+        if ( value.equals( clients_messages.peek() ) )
+            clients_messages.remove();
     }
 
-    public void inChannel( Message message ) {
-        _in_channel.add(message);
+    // View Change
+    protected void viewChange() {
+        this.has_proposed_this_view = false;
     }
+
+    protected boolean setView( int view ) {
+        if (this.view < view) {
+            this.view = view;
+            return true;
+        }
+
+        return false;
+    }
+
+    // Receive Messages
 
     @Override
-    public void run() {
-        viewChange();
-        offer();
-        while( isRun() ) {
-            if ( ! _in_channel.isEmpty() ) {
-                handle(_in_channel.poll());
-            }
+    protected boolean handle(Message message) {
+        if ( message.messageType == MessageType.CLIENT ) {
+            clients_messages.add( message.body );
+            return true;
         }
+
+        return false;
     }
 
-    String getClientMessage() {
-        return _clients_messages.peek();
+    // Process
+
+    @Override
+    protected void running_process() {
+        if ( ! has_proposed_this_view && ! clients_messages.isEmpty() ) {
+            sendToAll( new ViewMessage(MessageType.PROPOSE,id(),clients_messages.peek(),view) );
+        }
+
+        super.running_process();
     }
-
-    void deleteClientMessage() {
-        _clients_messages.remove();
-    }
-
-    abstract protected void offer();
-
-    abstract protected void handle(Message message);
-
-    void clientMessage(ClientMessage message) {
-        _clients_messages.add(message.value);
-    }
-
-    abstract void viewChange();
 }

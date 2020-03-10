@@ -3,9 +3,9 @@ package huji.protocols.clients;
 import huji.logger.logs.Log;
 import huji.logger.logs.Type;
 import huji.messages.impl.ClientMessage;
-import huji.protocols.AbstractProtocol;
+import huji.protocols.CommunicationAbleProtocol;
 
-public class ClientProtocol extends AbstractProtocol {
+public class ClientAbleProtocol extends CommunicationAbleProtocol {
 
     @Override
     public void run() {

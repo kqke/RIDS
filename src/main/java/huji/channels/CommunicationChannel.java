@@ -1,48 +1,27 @@
 package huji.channels;
 
-import huji.protocols.Protocol;
 import huji.messages.Message;
-import huji.protocols.replica.ReplicaProtocol;
-import huji.simulator.Simulator;
 
+import java.util.LinkedList;
 import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
-public class CommunicationChannel implements Channel {
-    private boolean _is_run = true;
-
-    private Queue<Message> _communication_channel;
-    private Simulator _simulator;
+public class CommunicationChannel<T extends Message> extends Channel<T> {
+    private Queue<T> communication_queue;
 
     public CommunicationChannel() {
-        _communication_channel = new ConcurrentLinkedQueue<>();
-    }
-
-    public void setSimulator(Simulator simulator) {
-        _simulator = simulator;
-    }
-
-    public void sendMessage(Message message ) {
-        _communication_channel.add(message);
+        super();
+        communication_queue = new LinkedList<>();
     }
 
     @Override
-    public void run() {
-        Message message = null;
-        while( _is_run ) {
-            if ( ! _communication_channel.isEmpty() ) {
-                message = _communication_channel.poll();
-                if ( message.to == -1 )
-                    for (Protocol protocol : _simulator.getProtocols()) {
-                        ((ReplicaProtocol)protocol).inChannel( message );
-                    }
-                else
-                    ((ReplicaProtocol)_simulator.getProtocol( message.to )).inChannel( message );
-            }
+    protected void running_process() {
+        if ( ! communication_queue.isEmpty() ) {
+            super.send( communication_queue.poll() );
         }
     }
 
-    public void shutdown() {
-        _is_run = false;
+    @Override
+    public void send ( T message ) {
+        communication_queue.add(message);
     }
 }
