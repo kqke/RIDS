@@ -10,17 +10,28 @@ import huji.protocols.CommunicationAbleProtocol;
 
 import huji.interfaces.Process;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 public abstract class Environment extends Process {
     private Channel<Message> communication_channel;
     private List<Agent> agents;
 
+    private Map<String,Object> shared_information;
+
     public Environment() {
         this.agents = new ArrayList<>();
         this.communication_channel = null;
+        this.shared_information = new HashMap<>();
+    }
+
+    // Shared Information
+
+    public void share( String key, Object info ) {
+        shared_information.put(key, info);
+    }
+
+    public Object getShared( String key ) {
+        return shared_information.get(key);
     }
 
     // Communication Channel

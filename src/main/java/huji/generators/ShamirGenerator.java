@@ -1,4 +1,6 @@
-package huji.simulator.shared;
+package huji.generators;
+
+import huji.generators.Generator;
 
 import java.util.Map;
 import java.util.Random;

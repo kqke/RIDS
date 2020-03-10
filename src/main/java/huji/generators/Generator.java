@@ -1,4 +1,4 @@
-package huji.simulator.shared;
+package huji.generators;
 
 import java.util.Map;
 

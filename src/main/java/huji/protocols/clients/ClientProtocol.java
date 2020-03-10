@@ -1,7 +1,6 @@
 package huji.protocols.clients;
 
-import huji.logger.logs.Log;
-import huji.logger.logs.Type;
+import huji.logger.Log;
 import huji.messages.impl.ClientMessage;
 import huji.protocols.CommunicationAbleProtocol;
 
