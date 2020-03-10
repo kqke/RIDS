@@ -1,6 +1,6 @@
 package huji.logger;
 
-import huji.interfaces.Listener;
+import huji.listener.Listener;
 import huji.logger.logs.Log;
 import huji.simulator.Simulator;
 

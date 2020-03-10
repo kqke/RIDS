@@ -1,5 +1,6 @@
-package huji.interfaces;
+package huji.protocols;
 
+import huji.channels.Channel;
 import huji.logger.logs.Log;
 import huji.logger.Logger;
 import huji.simulator.Agent;

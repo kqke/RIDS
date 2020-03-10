@@ -1,4 +1,4 @@
-package huji.interfaces;
+package huji.simulator.shared;
 
 import java.util.Map;
 

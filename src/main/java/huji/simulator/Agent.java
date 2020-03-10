@@ -1,6 +1,6 @@
 package huji.simulator;
 
-import huji.interfaces.Protocol;
+import huji.protocols.Protocol;
 
 public class Agent {
     final int id;

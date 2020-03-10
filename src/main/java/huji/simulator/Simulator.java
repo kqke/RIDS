@@ -1,9 +1,12 @@
 package huji.simulator;
 
+import huji.channels.Channel;
 import huji.interfaces.*;
 import huji.logger.Logger;
 import huji.logger.logs.Log;
 import huji.logger.logs.Type;
+import huji.protocols.Protocol;
+import huji.simulator.shared.Generator;
 
 import java.util.*;
 

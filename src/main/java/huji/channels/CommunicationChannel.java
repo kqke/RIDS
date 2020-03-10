@@ -1,7 +1,6 @@
 package huji.channels;
 
-import huji.interfaces.Channel;
-import huji.interfaces.Protocol;
+import huji.protocols.Protocol;
 import huji.messages.Message;
 import huji.protocols.replica.ReplicaProtocol;
 import huji.simulator.Simulator;
