@@ -9,7 +9,7 @@ import huji.logger.Logger;
 import huji.logger.logs.Log;
 import huji.logger.logs.Type;
 import huji.protocols.Protocol;
-import huji.protocols.clients.ClientAbleProtocol;
+import huji.protocols.clients.ClientProtocol;
 import huji.protocols.replica.PaxosProtocol;
 import huji.simulator.shared.Generator;
 import huji.simulator.shared.ShamirGenerator;
@@ -152,7 +152,7 @@ public class Simulator {
                 .addLogger(BasicLogger::new)
                 .addChannel(CommunicationChannel::new)
                 .addReplica(PaxosProtocol::new,5)
-                .addClient(ClientAbleProtocol::new,5)
+                .addClient(ClientProtocol::new,5)
                 .addSecretsGenerator( () -> new ShamirGenerator(5,1) );
         simulator.run();
     }

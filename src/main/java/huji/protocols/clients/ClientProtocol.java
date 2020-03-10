@@ -5,7 +5,7 @@ import huji.logger.logs.Type;
 import huji.messages.impl.ClientMessage;
 import huji.protocols.CommunicationAbleProtocol;
 
-public class ClientAbleProtocol extends CommunicationAbleProtocol {
+public class ClientProtocol extends CommunicationAbleProtocol {
 
     @Override
     public void run() {

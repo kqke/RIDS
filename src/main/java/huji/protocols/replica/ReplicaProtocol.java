@@ -33,17 +33,43 @@ public abstract class ReplicaProtocol extends CommunicationAbleProtocol {
     }
 
     // View Change
-    protected void viewChange() {
+    protected int view() {
+        return view;
+    }
+
+    void viewChange() {
         this.has_proposed_this_view = false;
     }
 
-    protected boolean setView( int view ) {
+    boolean setView( int view ) {
         if (this.view < view) {
             this.view = view;
             return true;
         }
 
         return false;
+    }
+
+    void increaseView() {
+        ++view;
+    }
+
+    // Send
+
+    protected void send( MessageType type, int to, String body ) {
+        super.send( new ViewMessage( type, id(), to, body, view ) );
+    }
+
+    void send( MessageType type, int to ) {
+        send( new ViewMessage( type, id(), to, "", view ) );
+    }
+
+    void sendToAll( MessageType type, String body ) {
+        super.sendToAll( new ViewMessage( type, id(), body, view ) );
+    }
+
+    void sendToAll( MessageType type ) {
+        sendToAll( new ViewMessage( type, id(), "", view ) );
     }
 
     // Receive Messages

@@ -1,21 +1,19 @@
 package huji.protocols.replica;
 
 import huji.messages.Message;
+import huji.messages.MessageType;
 import huji.messages.ViewMessage;
-
-import java.util.*;
+import huji.protocols.replica.view.DecisionCounters;
+import huji.protocols.replica.view.ViewResources;
 
 public class PaxosProtocol extends ReplicaProtocol {
-    private String[] values;
-    private Map<Integer, Integer> secrets;
-    private Map<Integer, int[]> decision_counters;
-
-    private int secrets_counter;
-    private int ack_counter;
+    private ViewResources resources;
+    private DecisionCounters counters;
 
     public PaxosProtocol() {
         super();
-        decision_counters = new HashMap<>();
+        this.resources = new ViewResources();
+        this.counters = new DecisionCounters();
     }
 
     @Override
@@ -50,49 +48,39 @@ public class PaxosProtocol extends ReplicaProtocol {
         if ( viewChangeIfNeeded(message) )
             return;
 
-        _values[message.from] = message.value;
-        outChannel(
-                new AckMessage(view, id(), message.from)
-        );
+        resources.add(message.from,message.body);
+        send( MessageType.ACK, message.from );
     }
 
     private void ackMessage(ViewMessage message) {
         if ( viewChangeIfNeeded(message) )
             return;
 
-        if ( 0 == --_ack_counter ) {
-            outChannel(
-                    new ElectMessage(view, id(), -1, getShareSecret(view))
-            );
-        }
+        if ( resources.countdownACK() )
+            sendToAll(MessageType.ELECT, getShareSecret(view));
     }
 
     private void electMessage(ViewMessage message) {
         if ( viewChangeIfNeeded(message) )
             return;
 
-        _secrets.put( message.from, message.share );
-        if ( 0 == --_secrets_counter ) {
+        resources.add( message.from, Integer.parseInt(message.body) );
+        if ( resources.countdownELECT() ) {
             int elected = getSecret( view, _secrets );
-            outChannel(
-                    ( _values[ elected ] != null ) ?
-                            new VoteMessage( view, id(), -1, _values[ elected ] ) :
-                            new ViewChangeMessage( view, id(), -1 )
-            );
+
+            if ( resources.contains( elected ) )
+                sendToAll( MessageType.VOTE, resources.get(elected));
+            else
+                sendToAll(MessageType.VC);
         }
     }
 
     private void voteMessage(ViewMessage message) {
         viewChangeIfNeeded(message);
 
-        int[] counters = getCounters(message.view);
-        if ( 0 == --counters[0] ) {
-            decided.put(message.view, message.value);
-
-            if ( message.value.equals( getClientMessage() ) )
-                deleteClientMessage();
-
-            ++view;
+        if ( counters.voteCountdown( view() ) ) {
+            decide(message.body);
+            increaseView();
             viewChange();
         }
     }
@@ -100,38 +88,26 @@ public class PaxosProtocol extends ReplicaProtocol {
     private void vcMessage(ViewMessage message) {
         viewChangeIfNeeded(message);
 
-        int[] counters = getCounters(message.view);
-        if ( 0 == --counters[1] ) {
-            ++view;
+        if ( counters.vcCountdown( view() ) ) {
+            increaseView();
             viewChange();
         }
     }
 
-    // Helpers
-
-    private int[] getCounters(int view) {
-        _decision_counters.putIfAbsent( view, new int[]{ F() + 1, F() + 1 } );
-        return _decision_counters.get(view);
-    }
-
     // View Change
 
-    private boolean viewChangeIfNeeded(Message message) {
-        if ( view < message.view ) {
-            view = message.view;
+    @Override
+    protected void viewChange() {
+        resources = new ViewResources();
+        super.viewChange();
+    }
+
+    private boolean viewChangeIfNeeded(ViewMessage message) {
+        if ( setView(message.view) ) {
             viewChange();
             return true;
         }
 
         return false;
-    }
-
-    @Override
-    void viewChange() {
-        _values = new String[N()];
-        _secrets = new HashMap<>();
-
-        _ack_counter = F() + 1;
-        _secrets_counter = F() + 1;
     }
 }
