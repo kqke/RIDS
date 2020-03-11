@@ -44,13 +44,14 @@ public class Simulator {
         simulator.logger = new Logger();
 
         simulator.environment = simulator.getEnvironment();
+
+        simulator.environment.share( "N", N );
+        simulator.environment.share( "F", F );
+        simulator.environment.share( "generator", new ShamirGenerator(N,F) );
+
         simulator.environment.setCommunicationChannel( new CommunicationChannel<>() );
         simulator.environment.addAgents(AgentType.Replica, PaxosProtocol::new,5);
         simulator.environment.addAgent(AgentType.Client, DummyClientProtocol::new);
-
-        simulator.environment.share( "N", N );
-        simulator.environment.share( "F", N );
-        simulator.environment.share( "generator", new ShamirGenerator(N,F) );
 
         simulator.environment.run();
     }

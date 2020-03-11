@@ -1,5 +1,6 @@
 package huji.protocols.replica;
 
+import huji.events.EventType;
 import huji.messages.*;
 import huji.protocols.CommunicationAbleProtocol;
 
@@ -27,7 +28,7 @@ public abstract class ReplicaProtocol extends CommunicationAbleProtocol {
 
     protected void decide( String value ) {
         decided.put(view, value);
-
+        getEnvironment().event(EventType.DECIDE, value);
         if ( value.equals( clients_messages.peek() ) )
             clients_messages.remove();
     }
@@ -52,6 +53,7 @@ public abstract class ReplicaProtocol extends CommunicationAbleProtocol {
 
     void increaseView() {
         ++view;
+        has_proposed_this_view = false;
     }
 
     // Send
@@ -100,6 +102,7 @@ public abstract class ReplicaProtocol extends CommunicationAbleProtocol {
     protected void running_process() {
         if ( ! has_proposed_this_view && ! clients_messages.isEmpty() ) {
             sendToAll( new ViewMessage(MessageType.PROPOSE,id(),clients_messages.peek(),view) );
+            has_proposed_this_view = true;
         }
 
         super.running_process();

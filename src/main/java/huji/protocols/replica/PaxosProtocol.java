@@ -1,5 +1,6 @@
 package huji.protocols.replica;
 
+import huji.environment.Environment;
 import huji.generators.Generator;
 import huji.messages.Message;
 import huji.messages.MessageType;
@@ -13,8 +14,14 @@ public class PaxosProtocol extends ReplicaProtocol {
 
     public PaxosProtocol() {
         super();
-        this.resources = new ViewResources();
+//        TODO - Can't access n, f before setting environment
+//        this.resources = new ViewResources(N(), F());
         this.counters = new DecisionCounters();
+    }
+
+    public void setEnvironment(Environment environment){
+        super.setEnvironment(environment);
+        this.resources = new ViewResources(N(), F());
     }
 
     @Override
@@ -101,7 +108,7 @@ public class PaxosProtocol extends ReplicaProtocol {
 
     @Override
     protected void viewChange() {
-        resources = new ViewResources();
+        resources = new ViewResources(N(), F());
         super.viewChange();
     }
 

@@ -10,12 +10,12 @@ public class ViewResources {
     private int ack_counter;
     private int elect_counter;
 
-    public ViewResources() {
+    public ViewResources(int n, int f) {
         values = new HashMap<>();
         shared = new HashMap<>();
 
-        ack_counter = 0;
-        elect_counter = 0;
+        ack_counter = n - f;
+        elect_counter = n - f;
     }
 
     public void add( int replica, String value ) {

@@ -38,6 +38,7 @@ public abstract class Environment extends Process {
 
     public void setCommunicationChannel ( Channel<Message> communication_channel ) {
         this.communication_channel = communication_channel;
+        this.communication_channel.setEnvironment(this);
     }
 
     public Channel<Message> getCommunicationChannel() {
