@@ -1,6 +1,7 @@
 package huji.environment;
 
 import huji.channels.Channel;
+import huji.channels.constraints.CommunicationConstraints;
 import huji.environment.agent.Agent;
 import huji.environment.agent.AgentType;
 import huji.events.EventType;
@@ -83,6 +84,10 @@ public abstract class Environment extends Process {
 
     abstract public void event( EventType type, String information );
 
+    // Communication Constraints
+
+    abstract public boolean communicationConstraints( int from , int to );
+
     // Process
 
     protected void running_process() {
@@ -101,13 +106,11 @@ public abstract class Environment extends Process {
         for ( Agent agent : agents )
             agent.protocol.shutdown();
 
-//        TODO - This causes a deadlock.
+//        TODO - The threads end when they exit run() method
 //        try {
 //            for ( Agent agent : agents )
 //                agent.thread.join();
-//        } catch ( Exception ignored ){
-
-//        }
+//        } catch ( Exception ignored ){}
 
         event( EventType.ENVIRONMENT_CLOSED, "" );
 

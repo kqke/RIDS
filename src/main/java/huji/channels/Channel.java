@@ -3,6 +3,7 @@ package huji.channels;
 import huji.environment.Environment;
 import huji.interfaces.Process;
 import huji.messages.Message;
+import huji.messages.MessageType;
 
 public abstract class Channel<T extends Message> extends Process {
     private Environment environment;
@@ -16,6 +17,7 @@ public abstract class Channel<T extends Message> extends Process {
     }
 
     public void send ( T message ) {
-        environment.getAgentProtocol( message.to ).receive( message );
+        if(!environment.communicationConstraints(message.from, message.to))
+            environment.getAgentProtocol( message.to ).receive( message );
     }
 }

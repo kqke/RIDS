@@ -14,8 +14,8 @@ public class CommunicationChannel<T extends Message> extends Channel<T> {
 
     @Override
     protected void running_process() {
-        if ( ! communication_queue.isEmpty() ) {
-            super.send( communication_queue.poll() );
+        if (!communication_queue.isEmpty()) {
+            super.send(communication_queue.poll());
         }
     }
 
