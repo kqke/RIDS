@@ -2,17 +2,15 @@ package huji.protocols;
 
 import huji.channels.Channel;
 import huji.messages.Message;
-import huji.messages.MessageType;
 
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public abstract class CommunicationAbleProtocol extends Protocol {
-    private Queue<Message> incoming_queue;
+    private ConcurrentLinkedQueue<Message> incoming_queue;
 
     protected CommunicationAbleProtocol() {
         super();
-        incoming_queue = new LinkedList<>();
+        incoming_queue = new ConcurrentLinkedQueue<>();
     }
 
     // Communication Channel

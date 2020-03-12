@@ -14,8 +14,11 @@ public class PaxosProtocol extends ReplicaProtocol {
 
     public PaxosProtocol() {
         super();
-//        TODO - Can't access n, f before setting environment
+
+//        TODO - Can't access n, f before setting environment.
+//         ViewResources are currently initiated when the environment is set - shouldn't cause a problem.
 //        this.resources = new ViewResources(N(), F());
+
         this.counters = new DecisionCounters();
     }
 

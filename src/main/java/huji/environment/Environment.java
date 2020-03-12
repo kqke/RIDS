@@ -94,17 +94,22 @@ public abstract class Environment extends Process {
 
     @Override
     public void shutdown() {
+
         super.shutdown();
 
         communication_channel.shutdown();
         for ( Agent agent : agents )
             agent.protocol.shutdown();
 
-        try {
-            for ( Agent agent : agents )
-                agent.thread.join();
-        } catch ( Exception ignored){}
+//        TODO - This causes a deadlock.
+//        try {
+//            for ( Agent agent : agents )
+//                agent.thread.join();
+//        } catch ( Exception ignored ){
+
+//        }
 
         event( EventType.ENVIRONMENT_CLOSED, "" );
+
     }
 }

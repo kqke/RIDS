@@ -10,6 +10,10 @@ import huji.protocols.clients.DummyClientProtocol;
 import huji.protocols.replica.PaxosProtocol;
 import huji.generators.ShamirGenerator;
 
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
+
+
 public class Simulator {
     private static final int N = 5;
     private static final int F = 0;
@@ -22,6 +26,8 @@ public class Simulator {
     }
 
     private class SimulatorEnvironment extends Environment {
+
+        Lock lock = new ReentrantLock();
         @Override
         public void event(EventType type, String information) {
             if ( logger == null )
@@ -35,7 +41,8 @@ public class Simulator {
             System.out.println(log);
 
             if ( type == EventType.DECIDE)
-                shutdown();
+                if(lock.tryLock())
+                    shutdown();
         }
     }
 

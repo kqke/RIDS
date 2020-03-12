@@ -2,15 +2,14 @@ package huji.channels;
 
 import huji.messages.Message;
 
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class CommunicationChannel<T extends Message> extends Channel<T> {
-    private Queue<T> communication_queue;
+    private ConcurrentLinkedQueue<T> communication_queue;
 
     public CommunicationChannel() {
         super();
-        communication_queue = new LinkedList<>();
+        communication_queue = new ConcurrentLinkedQueue<>();
     }
 
     @Override
