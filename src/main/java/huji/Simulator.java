@@ -1,12 +1,12 @@
 package huji;
 
-import huji.channels.CommunicationChannel;
-import huji.channels.constraints.CommunicationConstraints;
+import huji.channels.OmissionChannel;
 import huji.environment.Environment;
 import huji.environment.agent.AgentType;
 import huji.events.EventType;
 import huji.logger.Log;
 import huji.logger.Logger;
+import huji.messages.Message;
 import huji.protocols.clients.DummyClientProtocol;
 import huji.protocols.replica.PaxosProtocol;
 import huji.generators.ShamirGenerator;
@@ -29,13 +29,9 @@ public class Simulator {
     private class SimulatorEnvironment extends Environment {
 
         Lock lock = new ReentrantLock();
-        CommunicationConstraints communicationConstraints;
 
         SimulatorEnvironment(){
             super();
-            this.communicationConstraints = new CommunicationConstraints(N);
-            communicationConstraints.setOmission(3);
-            communicationConstraints.setOmission(4);
         }
 
         @Override
@@ -50,16 +46,16 @@ public class Simulator {
 
             System.out.println(log);
 
+            if( type == EventType.CHANNEL_INIT){
+                OmissionChannel<Message> channel = ((OmissionChannel<Message>)this.getCommunicationChannel());
+                channel.getConstraints().setOmission(3);
+                channel.getConstraints().setOmission(4);
+            }
             if ( type == EventType.DECIDE)
-
                 if(lock.tryLock())
                     shutdown();
         }
 
-        @Override
-        public boolean communicationConstraints( int from , int to ) {
-            return communicationConstraints.getConstraint(from, to);
-        }
     }
 
     // TODO - Shamir Generator only generates 0
@@ -74,8 +70,7 @@ public class Simulator {
         simulator.environment.share( "F", F );
         simulator.environment.share( "generator", new ShamirGenerator(N,F) );
 
-        simulator.environment.setCommunicationChannel( new CommunicationChannel<>() );
-//        simulator.environment.setCommunicationConstraints( new CommunicationConstraints(N, 1) ); // maybe can be initiated implicitly
+        simulator.environment.setCommunicationChannel( new OmissionChannel<>(N) );
         simulator.environment.addAgents(AgentType.Replica, PaxosProtocol::new,5);
         simulator.environment.addAgent(AgentType.Client, DummyClientProtocol::new);
 

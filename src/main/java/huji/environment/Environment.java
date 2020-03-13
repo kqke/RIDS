@@ -40,6 +40,7 @@ public abstract class Environment extends Process {
     public void setCommunicationChannel ( Channel<Message> communication_channel ) {
         this.communication_channel = communication_channel;
         this.communication_channel.setEnvironment(this);
+        event(EventType.CHANNEL_INIT, "");
     }
 
     public Channel<Message> getCommunicationChannel() {
@@ -83,10 +84,6 @@ public abstract class Environment extends Process {
     // Events
 
     abstract public void event( EventType type, String information );
-
-    // Communication Constraints
-
-    abstract public boolean communicationConstraints( int from , int to );
 
     // Process
 

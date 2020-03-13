@@ -17,7 +17,6 @@ public abstract class Channel<T extends Message> extends Process {
     }
 
     public void send ( T message ) {
-        if(!environment.communicationConstraints(message.from, message.to))
-            environment.getAgentProtocol( message.to ).receive( message );
+        environment.getAgentProtocol( message.to ).receive( message );
     }
 }
