@@ -1,6 +1,6 @@
 package huji;
 
-import huji.channels.OmissionChannel;
+import huji.channels.AsyncOmissionChannel;
 import huji.environment.Environment;
 import huji.environment.agent.AgentType;
 import huji.events.EventType;
@@ -47,7 +47,7 @@ public class Simulator {
             System.out.println(log);
 
             if( type == EventType.CHANNEL_INIT){
-                OmissionChannel<Message> channel = ((OmissionChannel<Message>)this.getCommunicationChannel());
+                AsyncOmissionChannel<Message> channel = ((AsyncOmissionChannel<Message>)this.getCommunicationChannel());
                 channel.getConstraints().setOmission(3);
                 channel.getConstraints().setOmission(4);
             }
@@ -70,7 +70,7 @@ public class Simulator {
         simulator.environment.share( "F", F );
         simulator.environment.share( "generator", new ShamirGenerator(N,F) );
 
-        simulator.environment.setCommunicationChannel( new OmissionChannel<>(N) );
+        simulator.environment.setCommunicationChannel( new AsyncOmissionChannel<>(N) );
         simulator.environment.addAgents(AgentType.Replica, PaxosProtocol::new,5);
         simulator.environment.addAgent(AgentType.Client, DummyClientProtocol::new);
 
