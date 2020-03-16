@@ -26,20 +26,22 @@ public abstract class ReplicaProtocol extends CommunicationAbleProtocol {
 
     // Decide
 
-    protected boolean decide( String value ) {
-        boolean result = decided.putIfAbsent(view,value) == null;
+    boolean decide( int view, String value ) {
+        if ( ! decided.containsKey(view) ) {
+            decided.put(view,value);
 
-        if ( result ) {
-            event(EventType.DECIDE, value + ".id=" + id() + ".view=" + view);
+            event(EventType.DECIDE, "id: " + id() + ", view: " + view + ", " + value);
             if (value.equals(clients_messages.peek()))
                 clients_messages.remove();
+
+            return true;
         }
 
-        return result;
+        return false;
     }
 
     // View Change
-    protected int view() {
+    int view() {
         return view;
     }
 
@@ -58,7 +60,6 @@ public abstract class ReplicaProtocol extends CommunicationAbleProtocol {
 
     void increaseView() {
         ++view;
-        has_proposed_this_view = false;
     }
 
     // Send
@@ -71,12 +72,20 @@ public abstract class ReplicaProtocol extends CommunicationAbleProtocol {
         send( new ViewMessage( type, id(), to, "", view ) );
     }
 
-    void sendToAll( MessageType type, String body ) {
+    void sendToAll( MessageType type, String body, int view ) {
         super.sendToAll( new ViewMessage( type, id(), body, view ) );
     }
 
+    void sendToAll( MessageType type, String body ) {
+        sendToAll( type, body, view );
+    }
+
+    void sendToAll( MessageType type, int view ) {
+        sendToAll( type, "", view );
+    }
+
     void sendToAll( MessageType type ) {
-        sendToAll( new ViewMessage( type, id(), "", view ) );
+        sendToAll( type, "", view );
     }
 
     // Receive Messages
@@ -93,11 +102,11 @@ public abstract class ReplicaProtocol extends CommunicationAbleProtocol {
 
     // Shared Information
 
-    protected int N() {
+    int N() {
         return (Integer) getSharedInformation("N");
     }
 
-    protected int F() {
+    int F() {
         return (Integer) getSharedInformation("F");
     }
 

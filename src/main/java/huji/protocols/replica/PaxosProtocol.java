@@ -74,7 +74,7 @@ public class PaxosProtocol extends ReplicaProtocol {
         if ( resources.countdownELECT() ) {
             int elected = getSecret();
 
-            event(EventType.ELECTED,"view: " + view() + ", elected: " + elected);
+            event(EventType.ELECTED,"id: " + id() + ", view: " + view() + ", elected: " + elected);
             if ( resources.contains( elected ) )
                 sendToAll( MessageType.COMMIT, resources.get(elected));
             else
@@ -83,10 +83,13 @@ public class PaxosProtocol extends ReplicaProtocol {
     }
 
     private void commitMessage(ViewMessage message) {
-        if ( decide(message.body) && ! viewChangeIfNeeded(message) ) {
-            //sendToAll( MessageType.COMMIT, message.body);
-            increaseView();
-            viewChange();
+        if ( decide(message.view,message.body) ) {
+            sendToAll( MessageType.COMMIT, message.body, message.view);
+
+            if ( ! viewChangeIfNeeded(message) )
+                viewChange();
+            if ( view() == message.view )
+                increaseView();
         }
     }
 
@@ -95,6 +98,7 @@ public class PaxosProtocol extends ReplicaProtocol {
             return;
 
         if ( resources.countdownVC() ) {
+            event(EventType.VC,"id: " + id() + ", view: " + view());
             increaseView();
             viewChange();
         }
