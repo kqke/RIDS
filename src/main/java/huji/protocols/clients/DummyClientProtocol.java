@@ -16,7 +16,7 @@ public class DummyClientProtocol extends CommunicationAbleProtocol {
         for ( int i = 0; i < N; ++i )
             for ( int j = 0; j < 10; ++j )
             send(
-                    new Message(MessageType.CLIENT,id(),i,"{client: " + id() + ", text: " + j + "}")
+                    new Message(MessageType.CLIENT,id(),i,"{client: " + i + ", text: " + j + "}")
             );
 
        shutdown();

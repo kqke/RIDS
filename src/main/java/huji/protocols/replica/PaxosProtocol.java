@@ -2,7 +2,7 @@ package huji.protocols.replica;
 
 import huji.environment.Environment;
 import huji.events.EventType;
-import huji.generators.Generator;
+import huji.secrectshare.SecretShare;
 import huji.messages.Message;
 import huji.messages.MessageType;
 import huji.messages.ViewMessage;
@@ -128,8 +128,8 @@ public class PaxosProtocol extends ReplicaProtocol {
 
     // Shamir
 
-    private Generator getShamirEncoderDecoder() {
-        return (Generator) getSharedInformation("generator");
+    private SecretShare getShamirEncoderDecoder() {
+        return (SecretShare) getSharedInformation("generator");
     }
 
     private String getShareableSecret() {

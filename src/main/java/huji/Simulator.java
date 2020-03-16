@@ -9,7 +9,7 @@ import huji.logger.Logger;
 import huji.messages.Message;
 import huji.protocols.clients.DummyClientProtocol;
 import huji.protocols.replica.PaxosProtocol;
-import huji.generators.ShamirGenerator;
+import huji.secrectshare.ShamirSecretShare;
 
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -68,7 +68,7 @@ public class Simulator {
 
         simulator.environment.share( "N", N );
         simulator.environment.share( "F", F );
-        simulator.environment.share( "generator", new ShamirGenerator(N,F) );
+        simulator.environment.share( "generator", new ShamirSecretShare(N,F) );
 
         simulator.environment.setCommunicationChannel( new AsyncOmissionChannel<>(N + 1) );
         simulator.environment.addAgents(AgentType.Replica, PaxosProtocol::new,5);

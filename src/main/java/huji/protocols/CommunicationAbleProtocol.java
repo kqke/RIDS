@@ -24,21 +24,21 @@ public abstract class CommunicationAbleProtocol extends Protocol {
 
     protected void send( Message message ) {
         getCommunicationChannel().send( message );
-        event(EventType.NEW_MESSAGE,message.toString());
+        //event(EventType.NEW_MESSAGE,message.toString());
     }
 
     protected void sendToAll( Message message ) {
         for ( int id : getEnvironment().getReplicasIDs() ) {
             send( message.copy( id ) );
         }
-        event(EventType.NEW_MESSAGE_TO_ALL,message.toString());
+        //event(EventType.NEW_MESSAGE_TO_ALL,message.toString());
     }
 
     // Receive
 
     public void receive( Message message ) {
         incoming_queue.add( message );
-        event(EventType.RECEIVE_MESSAGE,message.toString());
+        //event(EventType.RECEIVE_MESSAGE,message.toString());
     }
 
     // Process
