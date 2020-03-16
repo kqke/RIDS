@@ -11,10 +11,6 @@ import huji.protocols.clients.DummyClientProtocol;
 import huji.protocols.replica.PaxosProtocol;
 import huji.secrectshare.ShamirSecretShare;
 
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-
-
 public class Simulator {
     private static final int N = 5;
     private static final int F = 2;
@@ -27,9 +23,6 @@ public class Simulator {
     }
 
     private class SimulatorEnvironment extends Environment {
-
-        Lock lock = new ReentrantLock();
-
         SimulatorEnvironment(){
             super();
         }
