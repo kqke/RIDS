@@ -1,7 +1,5 @@
 package huji.generators;
 
-import huji.generators.Generator;
-
 import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
@@ -90,7 +88,7 @@ public class ShamirGenerator implements Generator {
                         denominator *= (j - i);
                     }
                 }
-                result += (float) ((float)entry.getValue() * (float)enumerator / (- (i + 1)) ) / denominator;
+                result += ((float)entry.getValue() * (float)enumerator / (- (i + 1)) ) / denominator;
             }
         }
 
