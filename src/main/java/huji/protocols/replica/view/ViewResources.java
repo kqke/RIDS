@@ -9,6 +9,7 @@ public class ViewResources {
 
     private int ack_counter;
     private int elect_counter;
+    private int vc_counter;
 
     public ViewResources(int n, int f) {
         values = new HashMap<>();
@@ -16,6 +17,7 @@ public class ViewResources {
 
         ack_counter = n - f;
         elect_counter = n - f;
+        vc_counter = n - f;
     }
 
     public void add( int replica, String value ) {
@@ -44,5 +46,9 @@ public class ViewResources {
 
     public boolean countdownELECT() {
         return 0 == --elect_counter;
+    }
+
+    public boolean countdownVC() {
+        return 0 == --vc_counter;
     }
 }

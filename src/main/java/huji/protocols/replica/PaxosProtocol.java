@@ -6,21 +6,13 @@ import huji.secrectshare.SecretShare;
 import huji.messages.Message;
 import huji.messages.MessageType;
 import huji.messages.ViewMessage;
-import huji.protocols.replica.view.DecisionCounters;
 import huji.protocols.replica.view.ViewResources;
 
 public class PaxosProtocol extends ReplicaProtocol {
     private ViewResources resources;
-    private DecisionCounters counters;
 
     public PaxosProtocol() {
         super();
-
-//        TODO - Can't access n, f before setting environment.
-//         ViewResources are currently initiated when the environment is set - shouldn't cause a problem.
-//        this.resources = new ViewResources(N(), F());
-
-        this.counters = new DecisionCounters();
     }
 
     public void setEnvironment(Environment environment){
@@ -45,8 +37,8 @@ public class PaxosProtocol extends ReplicaProtocol {
             case ELECT:
                 electMessage(view_message);
                 break;
-            case VOTE:
-                voteMessage(view_message);
+            case COMMIT:
+                commitMessage(view_message);
                 break;
             case VC:
                 vcMessage(view_message);
@@ -84,26 +76,25 @@ public class PaxosProtocol extends ReplicaProtocol {
 
             event(EventType.ELECTED,"view: " + view() + ", elected: " + elected);
             if ( resources.contains( elected ) )
-                sendToAll( MessageType.VOTE, resources.get(elected));
+                sendToAll( MessageType.COMMIT, resources.get(elected));
             else
                 sendToAll(MessageType.VC);
         }
     }
 
-    private void voteMessage(ViewMessage message) {
-        viewChangeIfNeeded(message);
-
-        if ( counters.voteCountdown( view(), N() - F() ) ) {
-            decide(message.body);
+    private void commitMessage(ViewMessage message) {
+        if ( decide(message.body) && ! viewChangeIfNeeded(message) ) {
+            //sendToAll( MessageType.COMMIT, message.body);
             increaseView();
             viewChange();
         }
     }
 
     private void vcMessage(ViewMessage message) {
-        viewChangeIfNeeded(message);
+        if ( viewChangeIfNeeded(message) )
+            return;
 
-        if ( counters.vcCountdown( view(), N() - F() ) ) {
+        if ( resources.countdownVC() ) {
             increaseView();
             viewChange();
         }
@@ -126,7 +117,7 @@ public class PaxosProtocol extends ReplicaProtocol {
         return false;
     }
 
-    // Shamir
+    // ShamirSecretShare
 
     private SecretShare getShamirEncoderDecoder() {
         return (SecretShare) getSharedInformation("generator");

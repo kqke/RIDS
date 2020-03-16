@@ -46,19 +46,16 @@ public class Simulator {
 
             System.out.println(log);
 
-            if( type == EventType.CHANNEL_INIT){
+            if ( type == EventType.CHANNEL_INIT ) {
                 AsyncOmissionChannel<Message> channel = ((AsyncOmissionChannel<Message>)this.getCommunicationChannel());
                 //channel.getConstraints().setOmission(3);
                 //channel.getConstraints().setOmission(4);
             }
-            if ( type == EventType.DECIDE)
-                if(lock.tryLock())
-                    shutdown();
+//            if ( type == EventType.DECIDE)
+//                shutdown();
         }
 
     }
-
-    // TODO - Shamir Generator only generates 0
 
     public static void main(String[] args) {
         Simulator simulator = new Simulator();

@@ -5,6 +5,6 @@ public enum MessageType {
     PROPOSE,
     ACK,
     ELECT,
-    VOTE,
+    COMMIT,
     VC
 }

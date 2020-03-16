@@ -26,11 +26,16 @@ public abstract class ReplicaProtocol extends CommunicationAbleProtocol {
 
     // Decide
 
-    protected void decide( String value ) {
-        decided.put(view, value);
-        event(EventType.DECIDE, value);
-        if ( value.equals( clients_messages.peek() ) )
-            clients_messages.remove();
+    protected boolean decide( String value ) {
+        boolean result = decided.putIfAbsent(view,value) == null;
+
+        if ( result ) {
+            event(EventType.DECIDE, value + ".id=" + id() + ".view=" + view);
+            if (value.equals(clients_messages.peek()))
+                clients_messages.remove();
+        }
+
+        return result;
     }
 
     // View Change
