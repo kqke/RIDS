@@ -101,7 +101,7 @@ public class ShamirSecretShare implements SecretShare {
             for ( int j : shared_secrets.keySet() ) {
                 j = j + 1;
                 if ( i != j ) {
-                    enumerator = enumerator.multiply(BigInteger.valueOf(-j - 1)).mod(P);
+                    enumerator = enumerator.multiply(BigInteger.valueOf(-j)).mod(P);
                     denominator = denominator.multiply(BigInteger.valueOf(i - j)).mod(P);
                 }
             }
