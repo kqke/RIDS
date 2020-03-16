@@ -48,8 +48,8 @@ public class Simulator {
 
             if ( type == EventType.CHANNEL_INIT ) {
                 AsyncOmissionChannel<Message> channel = ((AsyncOmissionChannel<Message>)this.getCommunicationChannel());
-                //channel.getConstraints().setOmission(3);
-                //channel.getConstraints().setOmission(4);
+                channel.getConstraints().setOmission(3);
+                channel.getConstraints().setOmission(4);
             }
 //            if ( type == EventType.DECIDE)
 //                shutdown();

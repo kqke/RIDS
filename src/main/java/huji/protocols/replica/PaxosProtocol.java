@@ -26,7 +26,7 @@ public class PaxosProtocol extends ReplicaProtocol {
             return true;
 
         ViewMessage view_message = (ViewMessage) message;
-
+        setViewIfNeeded(view_message);
         switch (message.messageType) {
             case PROPOSE:
                 proposeMessage(view_message);
@@ -51,7 +51,7 @@ public class PaxosProtocol extends ReplicaProtocol {
     }
 
     private void proposeMessage(ViewMessage message) {
-        if ( viewChangeIfNeeded(message) )
+        if ( isFromOlderView(message) )
             return;
 
         resources.add(message.from,message.body);
@@ -59,7 +59,7 @@ public class PaxosProtocol extends ReplicaProtocol {
     }
 
     private void ackMessage(ViewMessage message) {
-        if ( viewChangeIfNeeded(message) )
+        if ( isFromOlderView(message) )
             return;
 
         if ( resources.countdownACK() )
@@ -67,14 +67,15 @@ public class PaxosProtocol extends ReplicaProtocol {
     }
 
     private void electMessage(ViewMessage message) {
-        if ( viewChangeIfNeeded(message) )
+        if ( isFromOlderView(message) ) {
             return;
+        }
 
         resources.add( message.from, Integer.parseInt(message.body) );
         if ( resources.countdownELECT() ) {
             int elected = getSecret();
 
-            event(EventType.ELECTED,"id: " + id() + ", view: " + view() + ", elected: " + elected);
+            //event(EventType.ELECTED,"id: " + id() + ", view: " + view() + ", elected: " + elected);
             if ( resources.contains( elected ) )
                 sendToAll( MessageType.COMMIT, resources.get(elected));
             else
@@ -86,15 +87,14 @@ public class PaxosProtocol extends ReplicaProtocol {
         if ( decide(message.view,message.body) ) {
             sendToAll( MessageType.COMMIT, message.body, message.view);
 
-            if ( ! viewChangeIfNeeded(message) )
-                viewChange();
-            if ( view() == message.view )
+            viewChange();
+            if ( ! isFromOlderView(message) )
                 increaseView();
         }
     }
 
     private void vcMessage(ViewMessage message) {
-        if ( viewChangeIfNeeded(message) )
+        if ( isFromOlderView(message) )
             return;
 
         if ( resources.countdownVC() ) {
@@ -112,13 +112,14 @@ public class PaxosProtocol extends ReplicaProtocol {
         super.viewChange();
     }
 
-    private boolean viewChangeIfNeeded(ViewMessage message) {
+    private void setViewIfNeeded(ViewMessage message) {
         if ( setView(message.view) ) {
             viewChange();
-            return true;
         }
+    }
 
-        return false;
+    private boolean isFromOlderView(ViewMessage message) {
+        return message.view < view();
     }
 
     // ShamirSecretShare

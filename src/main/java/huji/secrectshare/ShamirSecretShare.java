@@ -6,15 +6,15 @@ import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class ShamirSecretShare implements SecretShare {
+    final private int K;
     final private BigInteger N;
-    final private BigInteger F;
     final private BigInteger P;
     final private Random random;
     final private Map<Integer, BigInteger[]> polynomials;
 
     public ShamirSecretShare(final int N, final int F) {
+        this.K = N - F;
         this.N = BigInteger.valueOf(N);
-        this.F = BigInteger.valueOf(F);
         this.P = getPrime(N);
         this.random = new Random();
         this.polynomials = new ConcurrentHashMap<>();
@@ -53,14 +53,14 @@ public class ShamirSecretShare implements SecretShare {
 
         return compute(
                 polynomials.get(view),
-                ++id
+                id + 1
         );
     }
 
     private BigInteger[] getCoefficients() {
-        BigInteger[] coefficients = new BigInteger[F.intValue() + 1];
+        BigInteger[] coefficients = new BigInteger[K];
         coefficients[0] = randomZp(N);
-        for ( int j = 1; j <= F.intValue(); ++ j ) {
+        for (int j = 1; j < K; ++ j ) {
             coefficients[j] = randomZp(P);
         }
         return coefficients;
@@ -69,7 +69,7 @@ public class ShamirSecretShare implements SecretShare {
     private BigInteger randomZp(final BigInteger p) {
         while (true) {
             final BigInteger r = new BigInteger(p.bitLength(), random);
-            if ( r.compareTo(BigInteger.ZERO) > 0 && r.compareTo(p) < 0 ) {
+            if ( r.compareTo(BigInteger.ZERO) >= 0 && r.compareTo(p) < 0 ) {
                 return r;
             }
         }
@@ -77,7 +77,7 @@ public class ShamirSecretShare implements SecretShare {
 
     private int compute( BigInteger[] coefficients, int x ) {
         BigInteger accum = coefficients[0];
-        for (int j = 1; j <= F.intValue(); j++) {
+        for (int j = 1; j < K; j++) {
             final BigInteger t1 = BigInteger.valueOf(x).modPow(BigInteger.valueOf(j), P);
             final BigInteger t2 = coefficients[j].multiply(t1).mod(P);
             accum = accum.add(t2).mod(P);
@@ -93,15 +93,14 @@ public class ShamirSecretShare implements SecretShare {
         BigInteger accum = BigInteger.ZERO;
 
         for ( Map.Entry<Integer, Integer> shared : shared_secrets.entrySet() ) {
-            int i = shared.getKey() + 1;
+            int i = shared.getKey();
 
             BigInteger enumerator = BigInteger.ONE;
             BigInteger denominator = BigInteger.ONE;
 
             for ( int j : shared_secrets.keySet() ) {
-                j = j + 1;
                 if ( i != j ) {
-                    enumerator = enumerator.multiply(BigInteger.valueOf(-j)).mod(P);
+                    enumerator = enumerator.multiply(BigInteger.valueOf(-j - 1)).mod(P);
                     denominator = denominator.multiply(BigInteger.valueOf(i - j)).mod(P);
                 }
             }
