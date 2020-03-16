@@ -74,19 +74,24 @@ public class ShamirGenerator implements Generator {
         int enumerator = 1;
         float result = 0;
 
+        int counter = 0;
         for(Integer i : shared_secrets.keySet()){
-            enumerator *= (i + 1);
+            if ( counter++ < F )
+                enumerator *= - (i + 1);
         }
 
+        counter = 0;
         for(Map.Entry<Integer, Integer> entry : shared_secrets.entrySet()){
-            int denominator = 1;
-            int i = entry.getKey();
-            for(int j : shared_secrets.keySet()){
-                if(i != j){
-                    denominator *= (j - i);
+            if ( counter++ < F ) {
+                int denominator = 1;
+                int i = entry.getKey();
+                for (int j : shared_secrets.keySet()) {
+                    if (i != j) {
+                        denominator *= (j - i);
+                    }
                 }
+                result += (float) ((float)entry.getValue() * (float)enumerator / (- (i + 1)) ) / denominator;
             }
-            result += (float)(entry.getValue() * enumerator) / denominator;
         }
 
         return Math.round(result) % P;

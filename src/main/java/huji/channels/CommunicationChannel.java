@@ -3,7 +3,6 @@ package huji.channels;
 import huji.messages.Message;
 
 import java.util.concurrent.DelayQueue;
-import java.util.concurrent.TimeUnit;
 
 public class CommunicationChannel<T extends Message> extends Channel<T> {
     private DelayQueue<T> communication_queue;

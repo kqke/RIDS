@@ -1,6 +1,6 @@
 package huji.channels.constraints;
 
-import javafx.util.Pair;
+import com.sun.tools.javac.util.Pair;
 
 import java.util.HashSet;
 import java.util.Set;
