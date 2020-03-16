@@ -48,8 +48,8 @@ public class Simulator {
 
             if( type == EventType.CHANNEL_INIT){
                 AsyncOmissionChannel<Message> channel = ((AsyncOmissionChannel<Message>)this.getCommunicationChannel());
-                channel.getConstraints().setOmission(3);
-                channel.getConstraints().setOmission(4);
+                //channel.getConstraints().setOmission(3);
+                //channel.getConstraints().setOmission(4);
             }
             if ( type == EventType.DECIDE)
                 if(lock.tryLock())
@@ -70,7 +70,7 @@ public class Simulator {
         simulator.environment.share( "F", F );
         simulator.environment.share( "generator", new ShamirGenerator(N,F) );
 
-        simulator.environment.setCommunicationChannel( new AsyncOmissionChannel<>(N) );
+        simulator.environment.setCommunicationChannel( new AsyncOmissionChannel<>(N + 1) );
         simulator.environment.addAgents(AgentType.Replica, PaxosProtocol::new,5);
         simulator.environment.addAgent(AgentType.Client, DummyClientProtocol::new);
 

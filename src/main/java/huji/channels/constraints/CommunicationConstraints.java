@@ -1,19 +1,22 @@
 package huji.channels.constraints;
 
-import com.sun.tools.javac.util.Pair;
-
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 public class CommunicationConstraints {
-
-    Set<Pair<Integer, Integer>> constraints;
+    List<Set<Integer>> constraints;
 
     int nReplicas;
 
     public CommunicationConstraints(int n){
         nReplicas = n;
-        constraints = new HashSet<>();
+
+        constraints = new ArrayList<>(n);
+        for (int i = 0; i < n; ++i) {
+            constraints.add( new HashSet<>() );
+        }
     }
 
     // TODO - currently only adds omission on the communication between replicas;
@@ -41,14 +44,14 @@ public class CommunicationConstraints {
     }
 
     public void setOmissionChannel(int from , int to){
-        constraints.add(new Pair<>(from, to));
+        constraints.get(from).add(to);
     }
 
     public void removeOmissionChannel(int from, int to){
-        constraints.remove(new Pair<>(from, to));
+        constraints.get(from).remove(to);
     }
 
     public boolean getConstraint(int from, int to){
-        return constraints.contains(new Pair<>(from, to));
+        return constraints.get(from).contains(to);
     }
 }

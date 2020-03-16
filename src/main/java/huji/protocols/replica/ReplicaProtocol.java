@@ -28,7 +28,7 @@ public abstract class ReplicaProtocol extends CommunicationAbleProtocol {
 
     protected void decide( String value ) {
         decided.put(view, value);
-        getEnvironment().event(EventType.DECIDE, value);
+        event(EventType.DECIDE, value);
         if ( value.equals( clients_messages.peek() ) )
             clients_messages.remove();
     }
@@ -79,7 +79,7 @@ public abstract class ReplicaProtocol extends CommunicationAbleProtocol {
     @Override
     protected boolean handle(Message message) {
         if ( message.messageType == MessageType.CLIENT ) {
-            clients_messages.add( message.body );
+            clients_messages.add( message.toString() );
             return true;
         }
 

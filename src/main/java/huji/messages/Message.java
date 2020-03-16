@@ -36,6 +36,6 @@ public class Message extends Delayable {
 
     @Override
     public String toString() {
-        return "Message{ from:" + from +  ", to:" + to + ", messageType:" + messageType + ", body: + " + body + "}";
+        return "Message{ from:" + from +  ", to:" + to + ", messageType:" + messageType + ", body: " + body + "}";
     }
 }
