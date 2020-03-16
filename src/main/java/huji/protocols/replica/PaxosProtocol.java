@@ -1,6 +1,7 @@
 package huji.protocols.replica;
 
 import huji.environment.Environment;
+import huji.events.EventType;
 import huji.generators.Generator;
 import huji.messages.Message;
 import huji.messages.MessageType;
@@ -81,6 +82,7 @@ public class PaxosProtocol extends ReplicaProtocol {
         if ( resources.countdownELECT() ) {
             int elected = getSecret();
 
+            event(EventType.ELECTED,"view: " + view() + ", elected: " + elected);
             if ( resources.contains( elected ) )
                 sendToAll( MessageType.VOTE, resources.get(elected));
             else

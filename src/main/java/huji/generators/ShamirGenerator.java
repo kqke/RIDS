@@ -52,9 +52,9 @@ public class ShamirGenerator implements Generator {
         Random rand = new Random();
         int[] result = new int[F+1];
 
-        result[0] = rand.nextInt(N) + 1;
+        result[0] = rand.nextInt(N);
         for ( int i = 1; i < F + 1; ++ i ) {
-            result[0] = rand.nextInt(P) + 1;
+            result[0] = rand.nextInt(P);
         }
         return result;
     }
@@ -75,7 +75,7 @@ public class ShamirGenerator implements Generator {
         int counter = 0;
         for(Integer i : shared_secrets.keySet()){
             if ( counter++ < F )
-                enumerator *= - (i + 1);
+                enumerator *= - i;
         }
 
         counter = 0;
@@ -88,7 +88,7 @@ public class ShamirGenerator implements Generator {
                         denominator *= (j - i);
                     }
                 }
-                result += ((float)entry.getValue() * (float)enumerator / (- (i + 1)) ) / denominator;
+                result += ((float)entry.getValue() * (float)enumerator / (- i ) ) / denominator;
             }
         }
 

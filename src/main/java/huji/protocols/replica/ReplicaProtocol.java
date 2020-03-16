@@ -79,7 +79,7 @@ public abstract class ReplicaProtocol extends CommunicationAbleProtocol {
     @Override
     protected boolean handle(Message message) {
         if ( message.messageType == MessageType.CLIENT ) {
-            clients_messages.add( message.toString() );
+            clients_messages.add( message.body );
             return true;
         }
 
