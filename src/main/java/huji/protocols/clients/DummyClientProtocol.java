@@ -5,6 +5,9 @@ import huji.messages.MessageType;
 import huji.protocols.CommunicationAbleProtocol;
 
 public class DummyClientProtocol extends CommunicationAbleProtocol {
+    /*
+        Dummy client that sends 10 messages to each replica
+     */
     public DummyClientProtocol() {
         super();
     }
@@ -14,7 +17,7 @@ public class DummyClientProtocol extends CommunicationAbleProtocol {
         final int N = N();
 
         for ( int i = 0; i < N; ++i )
-            for ( int j = 0; j < 10; ++j )
+            for ( int j = 0; j < 1; ++j )
             send(
                     new Message(MessageType.CLIENT,id(),i,"{client: " + i + ", text: " + j + "}")
             );

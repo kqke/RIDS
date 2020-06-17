@@ -1,7 +1,6 @@
 package huji.environment;
 
 import huji.channels.Channel;
-import huji.channels.constraints.CommunicationConstraints;
 import huji.environment.agent.Agent;
 import huji.environment.agent.AgentType;
 import huji.events.EventType;
@@ -103,7 +102,7 @@ public abstract class Environment extends Process {
         for ( Agent agent : agents )
             agent.protocol.shutdown();
 
-//        TODO - The threads end when they exit run() method
+//        The threads end when they exit run() method
 //        try {
 //            for ( Agent agent : agents )
 //                agent.thread.join();

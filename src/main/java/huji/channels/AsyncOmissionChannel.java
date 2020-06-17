@@ -6,6 +6,7 @@ import huji.messages.Message;
 import java.util.Random;
 
 public class AsyncOmissionChannel<T extends Message> extends CommunicationChannel<T> {
+
     private CommunicationConstraints constraints;
     private Random random;
 
