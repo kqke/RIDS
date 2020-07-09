@@ -33,16 +33,13 @@ public abstract class Node<T extends Message<R>, R> extends Process implements C
     }
 
     @Override
+    protected boolean running_condition() {
+        return !messages.isEmpty();
+    }
+
+    @Override
     protected void running_process() {
-        if (!messages.isEmpty()) {
-            handle(messages.remove());
-        } else
-            while (messages.isEmpty()) {
-                try {
-                    Thread.currentThread().wait();
-                }
-                catch(Exception ignored){}
-            }
+        handle(messages.remove());
     }
 
     protected abstract void handle(T msg);

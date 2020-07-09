@@ -31,14 +31,18 @@ public class AsyncChannel<T extends Message<R>, R> extends Process implements Co
         return id;
     }
 
+    @Override
+    protected boolean running_condition() {
+        return !communication_queue.isEmpty();
+    }
+
+    @Override
     protected void running_process() {
-        if (!communication_queue.isEmpty()) {
-            try {
-                T msg = communication_queue.take();
-                parties.get(msg.to).receive(msg);
-            }
-            catch (Exception ignored){}
+        try {
+            T msg = communication_queue.take();
+            parties.get(msg.to).receive(msg);
         }
+        catch (Exception ignored){}
     }
 
     public void send(T message) {
@@ -56,6 +60,7 @@ public class AsyncChannel<T extends Message<R>, R> extends Process implements Co
         }
 
         communication_queue.add(message);
+        wakeup();
     }
 
     public int getID(){

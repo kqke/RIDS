@@ -1,13 +1,23 @@
 package huji.impl.paxos;
 
-import org.junit.jupiter.api.Test;
+import huji.channel.CommunicationChannel;
+import huji.channel.impl.AsyncChannel;
+import huji.impl.paxos.messages.PaxosMessage;
+import huji.impl.paxos.messages.PaxosValue;
 
-import static org.junit.jupiter.api.Assertions.*;
+class PaxosTest extends Paxos {
 
-class PaxosTest {
+    public PaxosTest(CommunicationChannel<PaxosMessage, PaxosValue> channel) {
+        super(channel);
+    }
 
-    @Test
-    public void run() {
+    public static void main(String[] args) {
+        AsyncChannel<PaxosMessage, PaxosValue> channel = new AsyncChannel<>();
+        channel.start();
 
+        new UserCommands().run();
+
+        channel.shutdown();
+        System.out.println("done");
     }
 }
