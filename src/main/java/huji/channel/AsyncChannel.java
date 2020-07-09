@@ -14,7 +14,7 @@ import huji.interfaces.Process;
 public class AsyncChannel<T extends Message> extends Process implements CommunicationChannel<T>{
 
     protected DelayQueue<T> communication_queue;
-    protected Hashtable<Integer, CommunicationAble> parties;
+    protected Hashtable<Integer, CommunicationAble<Message>> parties;
     private Random random;
     private Iterator<Integer> ids;
 
@@ -24,7 +24,7 @@ public class AsyncChannel<T extends Message> extends Process implements Communic
         this.ids = IntStream.generate(new AtomicInteger()::getAndIncrement).iterator();
     }
 
-    public int register(CommunicationAble party){
+    public int register(CommunicationAble<Message> party){
         int id = getID();
         parties.put(id, party);
         return id;
