@@ -1,9 +1,11 @@
 package huji.channel;
 
 import java.util.Hashtable;
+import java.util.Iterator;
 import java.util.Random;
-import java.util.UUID;
 import java.util.concurrent.DelayQueue;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.IntStream;
 
 import huji.interfaces.CommunicationAble;
 import huji.messages.Message;
@@ -12,16 +14,18 @@ import huji.interfaces.Process;
 public class AsyncChannel<T extends Message> extends Process implements CommunicationChannel<T>{
 
     protected DelayQueue<T> communication_queue;
-    protected Hashtable<UUID, CommunicationAble> parties;
+    protected Hashtable<Integer, CommunicationAble> parties;
     private Random random;
+    private Iterator ids;
 
     public AsyncChannel() {
         this.communication_queue = new DelayQueue<>();
         this.random = new Random();
+        this.ids = IntStream.generate(new AtomicInteger()::getAndIncrement).iterator();
     }
 
-    public UUID register(CommunicationAble party){
-        UUID id = getID();
+    public int register(CommunicationAble party){
+        int id = getID();
         parties.put(id, party);
         return id;
     }
@@ -50,7 +54,7 @@ public class AsyncChannel<T extends Message> extends Process implements Communic
         communication_queue.add(message);
     }
 
-    public UUID getID(){
-        return UUID.randomUUID();
+    public int getID(){
+        return (Integer) ids.next();
     }
 }

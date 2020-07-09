@@ -15,7 +15,7 @@ public class Node<T extends Message> extends Process implements CommunicationAbl
     }
 
     @Override
-    public void receive(Message message) {
+    public void receive(T message) {
 
     }
 
