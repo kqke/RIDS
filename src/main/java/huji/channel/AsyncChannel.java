@@ -16,7 +16,7 @@ public class AsyncChannel<T extends Message> extends Process implements Communic
     protected DelayQueue<T> communication_queue;
     protected Hashtable<Integer, CommunicationAble> parties;
     private Random random;
-    private Iterator ids;
+    private Iterator<Integer> ids;
 
     public AsyncChannel() {
         this.communication_queue = new DelayQueue<>();
@@ -55,6 +55,6 @@ public class AsyncChannel<T extends Message> extends Process implements Communic
     }
 
     public int getID(){
-        return (Integer) ids.next();
+        return ids.next();
     }
 }
