@@ -1,6 +1,13 @@
 package huji.communication.channel;
 
-public interface CommunicationChannel<T> extends Runnable {
-    public int register();
-    public boolean send(int from, int to, T msg);
+import huji.communication.CommunicationAble;
+import huji.communication.messages.Message;
+
+import java.util.UUID;
+
+
+public interface CommunicationChannel<T extends Message> extends Runnable{
+    public UUID register(CommunicationAble party);
+    public void send(T msg);
 }
+

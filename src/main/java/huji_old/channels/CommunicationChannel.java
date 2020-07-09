@@ -5,7 +5,6 @@ import huji_old.messages.Message;
 import java.util.concurrent.DelayQueue;
 
 public class CommunicationChannel<T extends Message> extends Channel<T> {
-    private DelayQueue<T> communication_queue;
 
     public CommunicationChannel() {
         super();
