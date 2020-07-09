@@ -1,11 +1,13 @@
 package huji.channel;
 
 import huji.interfaces.CommunicationAble;
-import huji.messages.Message;
+import huji.message.Message;
+
+import java.io.Closeable;
 
 
-public interface CommunicationChannel<T extends Message> extends Runnable{
-    public int register(CommunicationAble<Message> party);
+public interface CommunicationChannel<T extends Message<R>, R> extends Runnable, Closeable {
+    public int register(CommunicationAble<T, R> party);
     public void send(T msg);
 }
 

@@ -1,4 +1,4 @@
-package huji.messages;
+package huji.message;
 
 import java.util.concurrent.Delayed;
 import java.util.concurrent.TimeUnit;

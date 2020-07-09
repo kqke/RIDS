@@ -8,15 +8,15 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 
 import huji.interfaces.CommunicationAble;
-import huji.messages.Message;
+import huji.message.Message;
 import huji.interfaces.Process;
 
-public class AsyncChannel<T extends Message> extends Process implements CommunicationChannel<T>{
+public class AsyncChannel<T extends Message<R>, R> extends Process implements CommunicationChannel<T, R>{
 
     protected DelayQueue<T> communication_queue;
-    protected Hashtable<Integer, CommunicationAble<Message>> parties;
-    private Random random;
-    private Iterator<Integer> ids;
+    protected Hashtable<Integer, CommunicationAble<T, R>> parties;
+    private final Random random;
+    private final Iterator<Integer> ids;
 
     public AsyncChannel() {
         this.communication_queue = new DelayQueue<>();
@@ -24,7 +24,7 @@ public class AsyncChannel<T extends Message> extends Process implements Communic
         this.ids = IntStream.generate(new AtomicInteger()::getAndIncrement).iterator();
     }
 
-    public int register(CommunicationAble<Message> party){
+    public int register(CommunicationAble<T, R> party){
         int id = getID();
         parties.put(id, party);
         return id;
@@ -33,7 +33,7 @@ public class AsyncChannel<T extends Message> extends Process implements Communic
     protected void running_process() {
         if (!communication_queue.isEmpty()) {
             try {
-                Message msg = communication_queue.take();
+                T msg = communication_queue.take();
                 parties.get(msg.to).receive(msg);
             }
             catch (Exception ignored){}

@@ -1,8 +1,8 @@
 package huji.interfaces;
 
-import huji.messages.Message;
+import huji.message.Message;
 
-public interface CommunicationAble<T extends Message> {
+public interface CommunicationAble<T extends Message<R>, R> {
     public void receive(T message);
     public void send(T message);
 }

@@ -1,20 +1,20 @@
-package huji.nodes;
+package huji.node;
 
 import huji.channel.CommunicationChannel;
 import huji.interfaces.CommunicationAble;
 import huji.interfaces.Process;
-import huji.messages.Message;
+import huji.message.Message;
 
 import java.util.LinkedList;
 import java.util.Queue;
 
-public abstract class Node<T extends Message> extends Process implements CommunicationAble<T> {
+public abstract class Node<T extends Message<R>, R> extends Process implements CommunicationAble<T, R> {
     protected final int id;
-    protected final CommunicationChannel<T> channel;
+    protected final CommunicationChannel<T, R> channel;
 
     private final Queue<T> messages;
 
-    public Node(CommunicationChannel<T> channel) {
+    public Node(CommunicationChannel<T, R> channel) {
         this.channel = channel;
         this.id = channel.register(this);
 

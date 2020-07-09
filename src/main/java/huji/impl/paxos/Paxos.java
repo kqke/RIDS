@@ -2,11 +2,11 @@ package huji.impl.paxos;
 
 import huji.channel.CommunicationChannel;
 import huji.impl.paxos.messages.PaxosMessage;
-import huji.messages.Message;
-import huji.nodes.Node;
+import huji.impl.paxos.messages.PaxosValue;
+import huji.node.Node;
 
-public class Paxos extends Node<PaxosMessage> {
-    public Paxos(CommunicationChannel<PaxosMessage> channel) {
+public class Paxos extends Node<PaxosMessage, PaxosValue> {
+    public Paxos(CommunicationChannel<PaxosMessage, PaxosValue> channel) {
         super(channel);
     }
 

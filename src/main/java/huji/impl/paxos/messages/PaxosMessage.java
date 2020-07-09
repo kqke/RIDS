@@ -1,9 +1,16 @@
 package huji.impl.paxos.messages;
 
-import huji.messages.Message;
+import huji.message.Message;
 
-public class PaxosMessage extends Message {
-    public PaxosMessage(UUID from, UUID to, String body) {
+public class PaxosMessage extends Message<PaxosValue> {
+    public final int storage;
+    public final int view;
+    public final PaxosMessageType type;
+
+    public PaxosMessage(int from, int to, PaxosValue body, int view, int storage, PaxosMessageType type) {
         super(from, to, body);
+        this.view = view;
+        this.storage = storage;
+        this.type = type;
     }
 }
