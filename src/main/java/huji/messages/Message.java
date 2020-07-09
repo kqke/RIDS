@@ -1,4 +1,4 @@
-package huji.communication.messages;
+package huji.messages;
 
 
 import java.util.UUID;

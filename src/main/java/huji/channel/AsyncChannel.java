@@ -1,13 +1,13 @@
-package huji.communication.channel;
+package huji.channel;
 
 import java.util.Hashtable;
 import java.util.Random;
 import java.util.UUID;
 import java.util.concurrent.DelayQueue;
 
-import huji.communication.CommunicationAble;
-import huji.communication.messages.Message;
-import huji.process.Process;
+import huji.interfaces.CommunicationAble;
+import huji.messages.Message;
+import huji.interfaces.Process;
 
 public class AsyncChannel<T extends Message> extends Process implements CommunicationChannel<T>{
 

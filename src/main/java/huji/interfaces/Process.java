@@ -1,4 +1,4 @@
-package huji.process;
+package huji.interfaces;
 
 import java.io.Closeable;
 import java.io.IOException;
