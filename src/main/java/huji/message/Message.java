@@ -16,6 +16,16 @@ public abstract class Message<T> extends Delayable {
         this.isClient = isClient;
     }
 
+    public Message(Message<T> other, int to) {
+        super();
+        this.from = other.from;
+        this.body = other.body;
+        this.isClient = other.isClient;
+        this.to = to;
+    }
+
+    abstract public Message<T> copy(int to);
+
     @Override
     public String toString() {
         return "Message{ from:" + from +  ", to:" + to + ", body: " + body.toString() + "}";

@@ -13,4 +13,16 @@ public class PaxosMessage extends Message<PaxosValue> {
         this.storage = storage;
         this.type = type;
     }
+
+    public PaxosMessage(PaxosMessage other, int to) {
+        super(other, to);
+        this.view = other.view;
+        this.storage = other.storage;
+        this.type = other.type;
+    }
+
+    @Override
+    public Message<PaxosValue> copy(int to) {
+        return new PaxosMessage(this, to);
+    }
 }

@@ -14,7 +14,7 @@ public class AsyncChannel<T extends Message<R>, R> extends Process implements Co
 
     protected DelayQueue<T> communication_queue;
     protected Hashtable<Integer, CommunicationAble<T, R>> parties;
-    protected List<CommunicationAble<T, R>> replicas;
+    protected List<Integer> replicas;
     private final Random random;
     private final Iterator<Integer> ids;
 
@@ -35,7 +35,7 @@ public class AsyncChannel<T extends Message<R>, R> extends Process implements Co
     public int register(CommunicationAble<T, R> party, boolean isReplica){
         int id = register(party);
         if (isReplica)
-            replicas.add(party);
+            replicas.add(id);
         return id;
     }
 
@@ -72,7 +72,12 @@ public class AsyncChannel<T extends Message<R>, R> extends Process implements Co
     }
 
     @Override
-    public Iterable<CommunicationAble<T, R>> getReplicas() {
+    public Iterable<Integer> getAll() {
+        return parties.keySet();
+    }
+
+    @Override
+    public Iterable<Integer> getReplicas() {
         return replicas;
     }
 

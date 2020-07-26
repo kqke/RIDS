@@ -33,7 +33,14 @@ public abstract class Node<T extends Message<R>, R> extends Process implements C
 
     @Override
     public void sendToAll(T message) {
-        // TODO
+        for (int party : channel.getAll())
+            send((T)message.copy(party));
+    }
+
+    @Override
+    public void sendToAllReplicas(T message) {
+        for (int party : channel.getReplicas())
+            send((T)message.copy(party));
     }
 
     @Override
