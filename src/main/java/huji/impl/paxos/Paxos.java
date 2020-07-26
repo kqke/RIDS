@@ -21,10 +21,12 @@ public class Paxos extends ReplicaNode<PaxosMessage, PaxosValue> {
 
     @Override
     protected void running_process() {
+
         if( !sentThisView )
             handleView();
 
         super.running_process();
+
     }
 
     @Override
@@ -65,7 +67,33 @@ public class Paxos extends ReplicaNode<PaxosMessage, PaxosValue> {
             return true;
 
         switch(msg.type){
-
+            case OFFER:
+                offerMessage(msg);
+                break;
+            case ACK_OFFER:
+                ackOfferMessage(msg);
+                break;
+            case LOCK:
+                lockMessage(msg);
+                break;
+            case ACK_LOCK:
+                ackLockMessage(msg);
+                break;
+            case DONE:
+                doneMessage(msg);
+                break;
+            case VOTE:
+                voteMessage(msg);
+                break;
+            case VC_STATE:
+                vcStateMessage(msg);
+                break;
+            case HISTORY_REQ:
+                historyReqMessage(msg);
+                break;
+            case HISTORY:
+                historyMessage(msg);
+                break;
         }
 
         return true;
@@ -105,6 +133,24 @@ public class Paxos extends ReplicaNode<PaxosMessage, PaxosValue> {
 
         // start current view again?
     }
+
+    private void offerMessage(PaxosMessage message){}
+
+    private void ackOfferMessage(PaxosMessage message){}
+
+    private void lockMessage(PaxosMessage message){}
+
+    private void ackLockMessage(PaxosMessage message){}
+
+    private void doneMessage(PaxosMessage message){}
+
+    private void voteMessage(PaxosMessage message){}
+
+    private void vcStateMessage(PaxosMessage message){}
+
+    private void historyReqMessage(PaxosMessage message){}
+
+    private void historyMessage(PaxosMessage message){}
 
     private boolean isLocked(){
         return lock != null;
