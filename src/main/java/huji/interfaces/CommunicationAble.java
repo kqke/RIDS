@@ -3,6 +3,7 @@ package huji.interfaces;
 import huji.message.Message;
 
 public interface CommunicationAble<T extends Message<R>, R> {
-    public void receive(T message);
-    public void send(T message);
+    void receive(T message);
+    void send(T message);
+    void sendToAll(T message);
 }

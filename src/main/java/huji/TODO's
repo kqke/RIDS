@@ -1,0 +1,8 @@
+
+
+-   What happens when a replica get a new message from a higher view,
+    and this view is voting phase view?
+
+-   Implement send to all in Node.java
+
+-   Does higher storage imply higher view?

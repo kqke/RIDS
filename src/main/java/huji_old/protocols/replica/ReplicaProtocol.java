@@ -22,6 +22,7 @@ public abstract class ReplicaProtocol extends CommunicationAbleProtocol {
         this.clients_messages = new ConcurrentLinkedQueue<>();
         this.has_proposed_this_view = false;
         this.view = 0;
+
     }
 
     // Decide

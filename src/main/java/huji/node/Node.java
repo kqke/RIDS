@@ -17,7 +17,6 @@ public abstract class Node<T extends Message<R>, R> extends Process implements C
     public Node(CommunicationChannel<T, R> channel) {
         this.channel = channel;
         this.id = channel.register(this);
-
         this.messages = new LinkedList<>();
     }
 
@@ -33,6 +32,11 @@ public abstract class Node<T extends Message<R>, R> extends Process implements C
     }
 
     @Override
+    public void sendToAll(T message) {
+        // TODO
+    }
+
+    @Override
     protected boolean running_condition() {
         return !messages.isEmpty();
     }
@@ -42,5 +46,5 @@ public abstract class Node<T extends Message<R>, R> extends Process implements C
         handle(messages.remove());
     }
 
-    protected abstract void handle(T msg);
+    protected abstract boolean handle(T msg);
 }

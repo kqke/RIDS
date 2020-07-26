@@ -7,7 +7,7 @@ import java.io.Closeable;
 
 
 public interface CommunicationChannel<T extends Message<R>, R> extends Runnable, Closeable {
-    public int register(CommunicationAble<T, R> party);
-    public void send(T msg);
+    int register(CommunicationAble<T, R> party);
+    void send(T msg);
 }
 

@@ -8,4 +8,9 @@ public class PaxosValue {
         this.value = value;
         this.view = view;
     }
+
+    @Override
+    public String toString() {
+        return value;
+    }
 }
