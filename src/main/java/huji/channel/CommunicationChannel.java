@@ -10,5 +10,6 @@ public interface CommunicationChannel<T extends Message<R>, R> extends Runnable,
     int register(CommunicationAble<T, R> party);
     void send(T msg);
     Iterable<CommunicationAble<T, R>> getReplicas();
+
 }
 
