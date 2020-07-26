@@ -2,7 +2,7 @@ package huji.impl.paxos;
 
 import java.util.Scanner;
 
-public class UserCommands implements Runnable {
+public class UserCommandLine implements Runnable {
     @Override
     public void run() {
         try(Scanner scan = new Scanner(System.in)){

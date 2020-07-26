@@ -17,7 +17,6 @@ public abstract class ReplicaNode<T extends Message<R>, R> extends Node<T, R> {
     }
 
     protected boolean handle(T msg){
-
         if ( msg.isClient ) {
             client_messages.add( msg.body );
             return true;

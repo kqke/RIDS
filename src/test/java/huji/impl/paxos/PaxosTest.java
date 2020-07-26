@@ -15,7 +15,9 @@ class PaxosTest extends Paxos {
         AsyncChannel<PaxosMessage, PaxosValue> channel = new AsyncChannel<>();
         channel.start();
 
-        new UserCommands().run();
+
+
+        new UserCommandLine().run();
 
         channel.shutdown();
         System.out.println("done");

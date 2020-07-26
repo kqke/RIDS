@@ -21,12 +21,10 @@ public class Paxos extends ReplicaNode<PaxosMessage, PaxosValue> {
 
     @Override
     protected void running_process() {
-
-        if( !sentThisView )
-            handleView();
+        if( ! sentThisView )
+            handleFreshView();
 
         super.running_process();
-
     }
 
     @Override
@@ -34,20 +32,22 @@ public class Paxos extends ReplicaNode<PaxosMessage, PaxosValue> {
         return super.running_condition() || !sentThisView;
     }
 
-    private void handleView(){
-        if ( offerView() )
+    /*
+     * On fresh view
+     */
+    private void handleFreshView() {
+        if ( is_even_view() )
             offer();
         else
             vote();
     }
 
-    private boolean offerView(){
+    private boolean is_even_view() {
         return (view % 2) == 0;
     }
 
-    private void offer(){
-
-        if(isLocked())
+    private void offer() {
+        if(is_locked())
             sendToAll(new PaxosMessage(id, -1, lock, view, storage, PaxosMessageType.OFFER));
         else
             sendToAll(new PaxosMessage(id, -1, client_messages.peek(), view, storage, PaxosMessageType.OFFER));
@@ -56,16 +56,72 @@ public class Paxos extends ReplicaNode<PaxosMessage, PaxosValue> {
 
     }
 
-    private void vote(){
+    private void vote() {
         // vote
+    }
+
+    /*
+     * View change
+     */
+    private void view_change_if_needed(PaxosMessage msg){
+        boolean is_view_changed = false;
+
+        if ( msg.view > this.view ) {
+            view_update(msg.view);
+            is_view_changed = true;
+        }
+
+        if ( msg.storage > this.storage ) {
+            storage_update(msg.storage);
+            is_view_changed = true;
+        }
+
+        if (is_view_changed)
+            view_change();
+    }
+
+    private void view_update(int view){
+        this.view = view;
+    }
+
+    private void storage_update(int storage){
+        this.storage = storage;
+        unlock();
+        // TODO: get history
+    }
+
+    private void view_change() {
+        sentThisView = false;
+    }
+
+    /*
+     * Locked value
+     */
+    private boolean is_locked(){
+        return lock != null;
+    }
+
+    private void unlock(){
+        this.lock = null;
+    }
+
+    private void lock(PaxosValue val){
+        this.lock = val;
+    }
+
+    /*
+     * Handle
+     */
+    private boolean to_ignore(PaxosMessage msg) {
+        return (msg.view < this.view) || (msg.storage < this.storage);
     }
 
     @Override
     protected boolean handle(PaxosMessage msg) {
-
-        if ( super.handle(msg) || ignore(msg) || checkUpdate(msg) )
+        if ( super.handle(msg) || to_ignore(msg) )
             return true;
 
+        view_change_if_needed(msg);
         switch(msg.type){
             case OFFER:
                 offerMessage(msg);
@@ -99,41 +155,6 @@ public class Paxos extends ReplicaNode<PaxosMessage, PaxosValue> {
         return true;
     }
 
-    private boolean ignore(PaxosMessage msg){
-        return ( msg.view < this.view || msg.storage < this.storage );
-    }
-
-    private boolean checkUpdate(PaxosMessage msg){
-        if ( msg.view > this.view ){
-            viewUpdate(msg.view);
-            return true;
-        }
-
-        if ( msg.storage > this.storage ){
-            storageUpdate(msg.storage);
-            return true;
-        }
-
-        return false;
-    }
-
-    private void viewUpdate(int view){
-
-        this.view = view;
-
-        // start new view???
-    }
-
-    private void storageUpdate(int storage){
-
-        // request history
-
-        this.storage = storage;
-        unlockVal();
-
-        // start current view again?
-    }
-
     private void offerMessage(PaxosMessage message){}
 
     private void ackOfferMessage(PaxosMessage message){}
@@ -151,17 +172,4 @@ public class Paxos extends ReplicaNode<PaxosMessage, PaxosValue> {
     private void historyReqMessage(PaxosMessage message){}
 
     private void historyMessage(PaxosMessage message){}
-
-    private boolean isLocked(){
-        return lock != null;
-    }
-
-    private void unlockVal(){
-        this.lock = null;
-    }
-
-    private void lockVal(PaxosValue val){
-        this.lock = val;
-    }
-
 }
