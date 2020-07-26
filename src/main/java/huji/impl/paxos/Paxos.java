@@ -4,17 +4,24 @@ import huji.channel.CommunicationChannel;
 import huji.impl.paxos.messages.PaxosMessage;
 import huji.impl.paxos.messages.PaxosMessageType;
 import huji.impl.paxos.messages.PaxosValue;
+import huji.impl.paxos.resources.PaxosViewResources;
 import huji.node.ReplicaNode;
 
 public class Paxos extends ReplicaNode<PaxosMessage, PaxosValue> {
 
     private int storage = 0;
     private int view = 0;
+    private PaxosValue myVal;
     private PaxosValue lock;
     private boolean sentThisView;
 
-    public Paxos(CommunicationChannel<PaxosMessage, PaxosValue> channel) {
+    private PaxosViewResources resources;
+
+    public Paxos(CommunicationChannel<PaxosMessage, PaxosValue> channel, int n, int f) {
         super(channel);
+        myVal = client_messages.peek();  // TODO What happens if empty? Blocking queue?
+        resources = new PaxosViewResources(n, f);
+        resources.reset(myVal);
         sentThisView = false;
         lock = null;
     }
@@ -47,13 +54,8 @@ public class Paxos extends ReplicaNode<PaxosMessage, PaxosValue> {
     }
 
     private void offer() {
-        if(is_locked())
-            sendToAll(new PaxosMessage(id, -1, lock, view, storage, PaxosMessageType.OFFER));
-        else
-            sendToAll(new PaxosMessage(id, -1, client_messages.peek(), view, storage, PaxosMessageType.OFFER));
-
+        sendToAll(new PaxosMessage(id, -1, myVal, view, storage, PaxosMessageType.OFFER));
         sentThisView = true;
-
     }
 
     private void vote() {
@@ -91,6 +93,11 @@ public class Paxos extends ReplicaNode<PaxosMessage, PaxosValue> {
     }
 
     private void view_change() {
+        if(!is_locked())
+            myVal = client_messages.peek();
+        else
+            myVal = lock;
+        resources.reset(myVal);
         sentThisView = false;
     }
 
@@ -136,7 +143,7 @@ public class Paxos extends ReplicaNode<PaxosMessage, PaxosValue> {
                 ackLockMessage(msg);
                 break;
             case DONE:
-                doneMessage(msg);
+                doneMessage();
                 break;
             case VOTE:
                 voteMessage(msg);
@@ -155,15 +162,38 @@ public class Paxos extends ReplicaNode<PaxosMessage, PaxosValue> {
         return true;
     }
 
-    private void offerMessage(PaxosMessage message){}
+    private void offerMessage(PaxosMessage message){
+        PaxosValue val = message.body;
+        if ( is_locked() )
+            val = lock;
+        send(new PaxosMessage(id, message.from, val, view, storage, PaxosMessageType.ACK_OFFER));
+    }
 
-    private void ackOfferMessage(PaxosMessage message){}
+    private void ackOfferMessage(PaxosMessage message){
+        resources.checkVal(message.body);
+        if (resources.countdownAckOffer()) {
+            if (resources.changeLock(myVal)){
+                lock(resources.getViewVal());
+            }
+            sendToAll(new PaxosMessage(id, -1, resources.getViewVal(), view, storage, PaxosMessageType.LOCK));
+        }
+    }
 
-    private void lockMessage(PaxosMessage message){}
+    private void lockMessage(PaxosMessage message){
+        send(new PaxosMessage(id, message.from, message.body, view, storage, PaxosMessageType.ACK_LOCK));
+    }
 
-    private void ackLockMessage(PaxosMessage message){}
+    private void ackLockMessage(PaxosMessage message){
+        if (resources.countdownAckLock())
+            sendToAll(new PaxosMessage(id, -1, resources.getViewVal(), view, storage, PaxosMessageType.DONE));
+    }
 
-    private void doneMessage(PaxosMessage message){}
+    private void doneMessage(){
+        if(resources.countdownDone()) {
+            view_update(view++);
+            view_change();
+        }
+    }
 
     private void voteMessage(PaxosMessage message){}
 
