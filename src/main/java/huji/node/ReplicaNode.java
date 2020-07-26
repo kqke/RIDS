@@ -16,6 +16,11 @@ public abstract class ReplicaNode<T extends Message<R>, R> extends Node<T, R> {
         this.client_messages = new ConcurrentLinkedQueue<>();
     }
 
+    @Override
+    protected boolean running_condition() {
+        return (super.running_condition() || !client_messages.isEmpty());
+    }
+
     protected boolean handle(T msg){
         if ( msg.isClient ) {
             client_messages.add( msg.body );
