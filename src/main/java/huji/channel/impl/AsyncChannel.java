@@ -1,8 +1,6 @@
 package huji.channel.impl;
 
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.DelayQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
@@ -16,6 +14,7 @@ public class AsyncChannel<T extends Message<R>, R> extends Process implements Co
 
     protected DelayQueue<T> communication_queue;
     protected Hashtable<Integer, CommunicationAble<T, R>> parties;
+    protected List<CommunicationAble<T, R>> replicas;
     private final Random random;
     private final Iterator<Integer> ids;
 
@@ -23,11 +22,20 @@ public class AsyncChannel<T extends Message<R>, R> extends Process implements Co
         this.communication_queue = new DelayQueue<>();
         this.random = new Random();
         this.ids = IntStream.generate(new AtomicInteger()::getAndIncrement).iterator();
+        this.parties = new Hashtable<>();
+        this.replicas = new LinkedList<>();
     }
 
     public int register(CommunicationAble<T, R> party){
         int id = getID();
         parties.put(id, party);
+        return id;
+    }
+
+    public int register(CommunicationAble<T, R> party, boolean isReplica){
+        int id = register(party);
+        if (isReplica)
+            replicas.add(party);
         return id;
     }
 
@@ -61,6 +69,11 @@ public class AsyncChannel<T extends Message<R>, R> extends Process implements Co
 
         communication_queue.add(message);
         wakeup();
+    }
+
+    @Override
+    public Iterable<CommunicationAble<T, R>> getReplicas() {
+        return replicas;
     }
 
     public int getID(){
