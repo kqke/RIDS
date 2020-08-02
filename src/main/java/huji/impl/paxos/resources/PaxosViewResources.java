@@ -2,57 +2,97 @@ package huji.impl.paxos.resources;
 
 import huji.impl.paxos.messages.PaxosValue;
 
+import java.util.Hashtable;
+
 public class PaxosViewResources {
 
+    // Protocol parameters
     private int N;
     private int F;
 
-    private int ack_offer_counter;
-    private int ack_lock_counter;
-    private int done_counter;
+    // Values table
+    private Hashtable<Integer, PaxosValue> values;
+
+    private PaxosEvenViewResources evenViewResources;
+    private PaxosOddViewResources oddViewResources;
+
+    private boolean isEvenView;
 
     private PaxosValue viewVal;
 
     public PaxosViewResources(int n, int f){
         N = n;
         F = f;
+        values = new Hashtable<>();
+
+        evenViewResources = new PaxosEvenViewResources(N, F);
+        oddViewResources = new PaxosOddViewResources(N, F);
     }
 
-    public void reset(PaxosValue val){
-        viewVal = val;
-        ack_offer_counter = N - F;
-        ack_lock_counter = N - F;
-        done_counter = N - F;
+    public void VC(){
+
     }
 
-    public void checkVal(PaxosValue val){
-        if( val.view > viewVal.view){
-            viewVal = val;
-        }
+    public void putVal(int from, PaxosValue val){
+        values.put(from, val);
     }
 
-    public boolean changeLock(PaxosValue val){
-        return val != viewVal;
+    public void putShare(int from, int val){
+        oddViewResources.putShare(from, val);
+    }
+
+    public void putVCState(PaxosValue state){
+
+    }
+
+    public PaxosVCState VCState(){
+        return null;
+    }
+
+    public Hashtable<Integer, Integer> getShares() {
+        return oddViewResources.getShares();
     }
 
     public PaxosValue getViewVal(){
         return viewVal;
     }
 
+    public PaxosValue getLeaderVal(){
+        return null;
+    }
+
+    public boolean isLocked(int view){
+        return viewVal.locked;
+    }
+
     public boolean countdownAckOffer() {
-        return 0 == --ack_offer_counter;
+        if(isEvenView)
+            return evenViewResources.countdownAckOffer();
+        return false;
     }
 
     public boolean countdownAckLock() {
-        return 0 == --ack_lock_counter;
+        if(isEvenView)
+            return evenViewResources.countdownAckLock();
+        return false;
     }
 
     public boolean countdownDone() {
-        return 0 == --done_counter;
+        if(isEvenView)
+            return evenViewResources.countdownDone();
+        return false;
     }
 
+    public boolean countdownVote() {
+        if (!isEvenView)
+            return oddViewResources.countdownVote();
+        return false;
+    }
 
-
-
+    public boolean countdownVCState() {
+        if (!isEvenView)
+            return oddViewResources.countdownVCState();
+        return false;
+    }
 
 }

@@ -21,6 +21,7 @@ public class PaxosMessage extends Message<PaxosValue> {
         this.type = other.type;
     }
 
+
     @Override
     public Message<PaxosValue> copy(int to) {
         return new PaxosMessage(this, to);
