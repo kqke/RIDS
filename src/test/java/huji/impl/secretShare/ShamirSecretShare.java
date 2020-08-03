@@ -1,4 +1,6 @@
-package huji.impl.paxos.secretShare;
+package huji.impl.secretShare;
+
+import huji.interfaces.SecretShare;
 
 import java.math.BigInteger;
 import java.util.Map;

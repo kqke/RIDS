@@ -1,4 +1,4 @@
-package huji.impl.paxos.secretShare;
+package huji.interfaces;
 
 import java.util.Map;
 

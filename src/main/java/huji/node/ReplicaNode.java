@@ -8,7 +8,6 @@ import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public abstract class ReplicaNode<T extends Message<R>, R> extends Node<T, R> {
-
     protected Queue<R> client_messages;
 
     public ReplicaNode(CommunicationChannel<T, R> channel){
@@ -18,7 +17,7 @@ public abstract class ReplicaNode<T extends Message<R>, R> extends Node<T, R> {
 
     @Override
     protected boolean running_condition() {
-        return (super.running_condition() || !client_messages.isEmpty());
+        return super.running_condition() || !client_messages.isEmpty();
     }
 
     protected boolean handle(T msg){
