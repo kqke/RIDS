@@ -5,13 +5,19 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class Logger {
     public final Queue<Log> logs;
+    public boolean to_print = false;
 
     public Logger(){
         this.logs = new ConcurrentLinkedQueue<>();
     }
 
-    public boolean add(Log log){
-        return logs.add(log);
+    public void add(Log log){
+        logs.add(log);
+        if (to_print) {
+            synchronized (System.out) {
+                System.out.println(log);
+            }
+        }
     }
 
     public Iterator<Log> get() {

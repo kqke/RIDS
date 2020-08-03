@@ -54,18 +54,16 @@ public class AsyncChannel<T extends Message<R>, R> extends Process implements Co
     }
 
     public void send(T message) {
-        if (message.from != message.to) {
-            final int rand = random.nextInt(10);
+        final int rand = random.nextInt(10);
 
-            if ( rand < 4 )
-                message.setDelay(random.nextInt(500));
-            if ( rand < 6 )
-                message.setDelay(random.nextInt(1000));
-            if ( rand < 9 )
-                message.setDelay(random.nextInt(1500));
-            else
-                message.setDelay(random.nextInt(2000));
-        }
+        if ( rand < 4 )
+            message.setDelay(random.nextInt(500));
+        if ( rand < 6 )
+            message.setDelay(random.nextInt(1000));
+        if ( rand < 9 )
+            message.setDelay(random.nextInt(1500));
+        else
+            message.setDelay(random.nextInt(2000));
 
         communication_queue.add(message);
         wakeup();

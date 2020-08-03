@@ -28,7 +28,10 @@ public abstract class Node<T extends Message<R>, R> extends Process implements C
 
     @Override
     public void send(T message) {
-        channel.send(message);
+        if (message.to == id)
+            receive(message);
+        else
+            channel.send(message);
     }
 
     @Override
