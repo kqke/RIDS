@@ -21,6 +21,9 @@ public class PaxosViewResources {
     // Shares table
     private HashMap<Integer, Integer> shares;
 
+    //Temp lock
+    PaxosValue temp_lock_val;
+
     // Even view counters
     private int ack_offer_counter;
     private int ack_lock_counter;
@@ -48,6 +51,7 @@ public class PaxosViewResources {
 
         vc_state = NONE;
 
+        temp_lock_val = null;
     }
 
     private void reset_counters(){
@@ -62,6 +66,18 @@ public class PaxosViewResources {
 
     public void putVal(int from, PaxosValue val){
         values.put(from, new Pair<>(val, NONE));
+    }
+
+    public void putLockedVal(PaxosMessage message){
+        temp_lock_val = (temp_lock_val != null && message.body.view < temp_lock_val.view) ? temp_lock_val : message.body;
+    }
+
+    public boolean changeLock(){
+        return temp_lock_val != null;
+    }
+
+    public PaxosValue getLock(){
+        return temp_lock_val;
     }
 
     public void lock(int from, PaxosValue val){

@@ -121,9 +121,9 @@ public class Paxos extends ViewChangeAbleNode {
 
         viewResources.putVal(message.from, message.body);
 
-        if(this.is_locked() && locked_value.view > message.body.view)
+        if(this.is_locked() && locked_value().view > message.body.view)
             send(
-                    new PaxosMessage(id, message.from, locked_value, view(), storage(), PaxosMessageType.ACK_OFFER_LOCKED)
+                    new PaxosMessage(id, message.from, locked_value(), view(), storage(), PaxosMessageType.ACK_OFFER_LOCKED)
             );
 
         else
@@ -133,13 +133,13 @@ public class Paxos extends ViewChangeAbleNode {
     }
 
     private void ackOfferLockedMessage(PaxosMessage message){
-        temp_lock_val = (temp_lock_val != null && message.body.view < temp_lock_val.view) ? temp_lock_val : message.body;
+        viewResources.putLockedVal(message);
     }
 
     private void ackOfferMessage(PaxosMessage message){
         if (viewResources.countdownAckOffer()) {
             if(viewResources.changeLock())
-                lock(temp_lock_val);
+                lock(viewResources.getLock());
             sendToAll(new PaxosMessage(id, -1, my_val, view(), storage(), PaxosMessageType.LOCK));
         }
     }
@@ -205,9 +205,5 @@ public class Paxos extends ViewChangeAbleNode {
     private void compute_leader(){
         // TODO
     }
-
-    private void commit(){
-
-    };
 
 }
