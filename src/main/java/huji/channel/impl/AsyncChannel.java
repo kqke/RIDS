@@ -32,11 +32,8 @@ public class AsyncChannel<T extends Message<R>, R> extends Process implements Co
         return id;
     }
 
-    public int register(CommunicationAble<T, R> party, boolean isReplica){
-        int id = register(party);
-        if (isReplica)
-            replicas.add(id);
-        return id;
+    public void register_replica(CommunicationAble<T, R> party){
+        replicas.add(party.get_id());
     }
 
     @Override

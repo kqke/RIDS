@@ -112,15 +112,15 @@ public abstract class ViewChangeAbleNode extends ReplicaNode<PaxosMessage, Paxos
     /*
      * History
      */
-    private void get_history(int storage, int storage1) {
+    protected void get_history(int storage, int storage1) {
         // TODO
     }
 
-    private void historyReqMessage(PaxosMessage message) {
+    protected void historyReqMessage(PaxosMessage message) {
         // TODO
     }
 
-    private void historyMessage(PaxosMessage message) {
+    protected void historyMessage(PaxosMessage message) {
         // TODO
     }
 }

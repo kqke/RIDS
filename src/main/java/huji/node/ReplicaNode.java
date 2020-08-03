@@ -12,6 +12,7 @@ public abstract class ReplicaNode<T extends Message<R>, R> extends Node<T, R> {
 
     public ReplicaNode(CommunicationChannel<T, R> channel){
         super(channel);
+        channel.register_replica(this);
         this.client_messages = new ConcurrentLinkedQueue<>();
     }
 

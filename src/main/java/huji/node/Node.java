@@ -21,6 +21,11 @@ public abstract class Node<T extends Message<R>, R> extends Process implements C
     }
 
     @Override
+    public int get_id() {
+        return id;
+    }
+
+    @Override
     public void receive(T message) {
         messages.add(message);
         wakeup();

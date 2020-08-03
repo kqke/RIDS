@@ -1,5 +1,9 @@
 package huji.impl.paxos;
 
+import huji.impl.paxos.messages.PaxosMessage;
+import huji.impl.paxos.messages.PaxosMessageType;
+import huji.impl.paxos.messages.PaxosValue;
+
 import java.util.Map;
 import java.util.Scanner;
 
@@ -48,9 +52,29 @@ public class UserCommandLine implements Runnable {
             case "history":
                 cmd_history(Integer.parseInt(splitStr[1]), Integer.parseInt(splitStr[2]));
                 break;
+            case "user":
+                cmd_user(Integer.parseInt(splitStr[1]), splitStr[2]);
+                break;
             default:
                 System.out.println(str);
         }
+    }
+
+    /*
+     * User message
+     */
+
+    private void cmd_user(int replica, String str) {
+        replicas.get(replica).receive(
+                new PaxosMessage(
+                        0,
+                        replica,
+                        new PaxosValue(),
+                        -1,
+                        -1,
+                        // TODO
+                )
+        );
     }
 
     /*
@@ -58,14 +82,15 @@ public class UserCommandLine implements Runnable {
      */
 
     private void cmd_history(int replica, int start_view) {
-        replicas.get(replica);
-        // TODO: print
+        PaxosTest getter = replicas.get(replica);
+        getter.get_history(start_view, getter.storage());
+        // TODO
     }
 
     /*
      * Crash
      */
-    
+
     private void cmd_crash(int replica) {
         replicas.get(replica).shutdown();
     }
