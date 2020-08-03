@@ -15,7 +15,11 @@ public class Paxos extends ViewChangeAbleNode {
 
     // View resources
     private PaxosValue locked_value = null;
+    private PaxosValue my_val = null;
     private PaxosViewResources viewResources;
+
+    // Leader
+    private int L;
 
     public Paxos(CommunicationChannel<PaxosMessage, PaxosValue> channel, int N) {
         super(channel);
@@ -41,11 +45,11 @@ public class Paxos extends ViewChangeAbleNode {
     protected void send_view_beginning_message() {
         if ( is_even_view( view() ) )
             sendToAll(
-                    new PaxosMessage(id, -1, viewResources.getViewVal(), view(), storage(), PaxosMessageType.OFFER)
+                    new PaxosMessage(id, -1, my_val, view(), storage(), PaxosMessageType.OFFER)
             );
         else
             sendToAll(
-                    new PaxosMessage(id, -1, viewResources.getViewVal(), view(), storage(), PaxosMessageType.VOTE)
+                    new PaxosMessage(id, -1, my_val, view(), storage(), PaxosMessageType.VOTE)
             );
     }
 
@@ -86,6 +90,8 @@ public class Paxos extends ViewChangeAbleNode {
             case OFFER:
                 offerMessage(msg);
                 return true;
+            case ACK_OFFER_LOCKED:
+                ackOfferLockedMessage(msg);
             case ACK_OFFER:
                 ackOfferMessage(msg);
                 return true;
@@ -96,12 +102,14 @@ public class Paxos extends ViewChangeAbleNode {
                 ackLockMessage(msg);
                 return true;
             case DONE:
-                doneMessage();
+                doneMessage(msg);
                 return true;
             case VOTE:
                 voteMessage(msg);
                 return true;
             case VC_STATE:
+            case VC_STATE_LOCK:
+            case VC_STATE_DONE:
                 vcStateMessage(msg);
                 return true;
         }
@@ -111,35 +119,43 @@ public class Paxos extends ViewChangeAbleNode {
 
     private void offerMessage(PaxosMessage message){
 
-        PaxosValue val = message.body;
+        viewResources.putVal(message.from, message.body);
 
-        viewResources.putVal(message.from, val);
+        if(this.is_locked() && locked_value.view > message.body.view)
+            send(
+                    new PaxosMessage(id, message.from, locked_value, view(), storage(), PaxosMessageType.ACK_OFFER_LOCKED)
+            );
 
-        if(viewResources.isLocked(val.view))
-            val = viewResources.getViewVal();
+        else
+            send(
+                    new PaxosMessage(id, message.from, message.body, view(), storage(), PaxosMessageType.ACK_OFFER)
+            );
+    }
 
-        send(new PaxosMessage(id, message.from, val, view(), storage(), PaxosMessageType.ACK_OFFER));
+    private void ackOfferLockedMessage(PaxosMessage message){
+        temp_lock_val = (temp_lock_val != null && message.body.view < temp_lock_val.view) ? temp_lock_val : message.body;
     }
 
     private void ackOfferMessage(PaxosMessage message){
-
-
         if (viewResources.countdownAckOffer()) {
-
-            sendToAll(new PaxosMessage(id, -1, viewResources.getViewVal(), view(), storage(), PaxosMessageType.LOCK));
+            if(viewResources.changeLock())
+                lock(temp_lock_val);
+            sendToAll(new PaxosMessage(id, -1, my_val, view(), storage(), PaxosMessageType.LOCK));
         }
     }
 
     private void lockMessage(PaxosMessage message){
+        viewResources.lock(message.from, message.body);
         send(new PaxosMessage(id, message.from, message.body, view(), storage(), PaxosMessageType.ACK_LOCK));
     }
 
     private void ackLockMessage(PaxosMessage message){
         if (viewResources.countdownAckLock())
-            sendToAll(new PaxosMessage(id, -1, viewResources.getViewVal(), view(), storage(), PaxosMessageType.DONE));
+            sendToAll(new PaxosMessage(id, -1, my_val, view(), storage(), PaxosMessageType.DONE));
     }
 
-    private void doneMessage(){
+    private void doneMessage(PaxosMessage message){
+        viewResources.done(message.from, message.body);
         if(viewResources.countdownDone()) {
             view_update();
             view_change();
@@ -149,23 +165,36 @@ public class Paxos extends ViewChangeAbleNode {
     private void voteMessage(PaxosMessage message){
         viewResources.putShare(message.from, message.body.getIntVal());
         if(viewResources.countdownVote()){
-            computeLeader();
-            // TODO - find a way to attach state to message
-            sendToAll(new PaxosMessage(id, -1, viewResources.getLeaderVal(), view(), storage(), PaxosMessageType.VC_STATE));
+            compute_leader();
+            PaxosMessageType type;
+            switch(viewResources.getPartyState(L)){
+                case DONE:
+                    type = PaxosMessageType.VC_STATE_DONE;
+                    break;
+                case LOCK:
+                    type = PaxosMessageType.VC_STATE_LOCK;
+                    break;
+                default:
+                    type = PaxosMessageType.VC_STATE;
+                    break;
+            }
+            sendToAll(
+                    new PaxosMessage(id, -1, viewResources.getPartyVal(L), view(), storage(), type)
+            );
         }
     }
 
     private void vcStateMessage(PaxosMessage message){
-        viewResources.putVCState(message.body);
+        viewResources.putVCState(message);
         if(viewResources.countdownVCState()){
             switch(viewResources.VCState()){
-                case COMMIT:
+                case DONE:
                     commit();
                     break;
                 case LOCK:
-                    lock(viewResources.getLeaderVal());
+                    lock(viewResources.getPartyVal(L));
                     break;
-                default:
+                case NONE:
                     unlock();
                     break;
             }
@@ -173,9 +202,12 @@ public class Paxos extends ViewChangeAbleNode {
         }
     }
 
-    private void computeLeader(){}
+    private void compute_leader(){
+        // TODO
+    }
 
-    private void commit(){};
+    private void commit(){
 
+    };
 
 }

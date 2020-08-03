@@ -1,8 +1,13 @@
 package huji.impl.paxos.resources;
 
-import huji.impl.paxos.messages.PaxosValue;
 
-import java.util.Hashtable;
+import huji.impl.paxos.messages.PaxosMessage;
+import huji.impl.paxos.messages.PaxosValue;
+import javafx.util.Pair;
+
+import java.util.HashMap;
+
+import static huji.impl.paxos.resources.PaxosVCState.*;
 
 public class PaxosViewResources {
 
@@ -11,88 +16,128 @@ public class PaxosViewResources {
     private final int F;
 
     // Values table
-    private Hashtable<Integer, PaxosValue> values;
+    private HashMap<Integer, Pair<PaxosValue, PaxosVCState>> values;
 
-    private PaxosEvenViewResources evenViewResources;
-    private PaxosOddViewResources oddViewResources;
+    // Shares table
+    private HashMap<Integer, Integer> shares;
 
-    private boolean isEvenView;
+    // Even view counters
+    private int ack_offer_counter;
+    private int ack_lock_counter;
+    private int done_counter;
 
-    private PaxosValue viewVal;
+    // Odd view counters
+    private int vote_counter;
+    private int vc_state_counter;
+    private int vc_state_lock_counter;
+
+    // VC state
+    private PaxosVCState vc_state;
+
+
+    // View value
+    private PaxosValue view_val;
+
 
     public PaxosViewResources(int n, int f){
         N = n;
         F = f;
-        values = new Hashtable<>();
+        reset_counters();
+        values = new HashMap<>();
+        shares = new HashMap<>();
 
-        evenViewResources = new PaxosEvenViewResources(N, F);
-        oddViewResources = new PaxosOddViewResources(N, F);
-    }
-
-    public void VC(){
+        vc_state = NONE;
 
     }
+
+    private void reset_counters(){
+        ack_offer_counter = N - F;
+        ack_lock_counter = N - F;
+        done_counter = N - F;
+        vote_counter = N - F;
+        vc_state_counter = N - F;
+        vc_state_lock_counter = N - F;
+    }
+
 
     public void putVal(int from, PaxosValue val){
-        values.put(from, val);
+        values.put(from, new Pair<>(val, NONE));
     }
+
+    public void lock(int from, PaxosValue val){
+        values.put(from, new Pair<>(val, LOCK));
+    }
+
+    public void done(int from, PaxosValue val){
+        values.put(from, new Pair<>(val, DONE));
+    }
+
 
     public void putShare(int from, int val){
-        oddViewResources.putShare(from, val);
+        shares.put(from, val);
     }
 
-    public void putVCState(PaxosValue state){
+    public HashMap<Integer, Integer> getShares() {
+        return shares;
+    }
 
+    public void putVCState(PaxosMessage message){
+        switch(message.type){
+            case VC_STATE_DONE:
+                vc_state = DONE;
+                break;
+            case VC_STATE_LOCK:
+                if(countdownVCStateLock())
+                    vc_state = DONE;
+                else
+                    if(vc_state != DONE)
+                        vc_state = LOCK;
+                break;
+        }
     }
 
     public PaxosVCState VCState(){
+        return vc_state;
+    }
+
+    public PaxosValue getPartyVal(int i){
+        Pair<PaxosValue, PaxosVCState> pair = values.get(i);
+        if(pair != null){
+            return pair.getKey();
+        }
         return null;
     }
 
-    public Hashtable<Integer, Integer> getShares() {
-        return oddViewResources.getShares();
-    }
-
-    public PaxosValue getViewVal(){
-        return viewVal;
-    }
-
-    public PaxosValue getLeaderVal(){
-        return null;
-    }
-
-    public boolean isLocked(int view){
-        return viewVal.locked;
+    public PaxosVCState getPartyState(int i){
+        Pair<PaxosValue, PaxosVCState> pair = values.get(i);
+        if(pair != null){
+            return pair.getValue();
+        }
+        return NONE;
     }
 
     public boolean countdownAckOffer() {
-        if(isEvenView)
-            return evenViewResources.countdownAckOffer();
-        return false;
+        return 0 == --ack_offer_counter;
     }
 
     public boolean countdownAckLock() {
-        if(isEvenView)
-            return evenViewResources.countdownAckLock();
-        return false;
+        return 0 == --ack_lock_counter;
     }
 
     public boolean countdownDone() {
-        if(isEvenView)
-            return evenViewResources.countdownDone();
-        return false;
+        return 0 == --done_counter;
     }
 
     public boolean countdownVote() {
-        if (!isEvenView)
-            return oddViewResources.countdownVote();
-        return false;
+        return 0 == --vote_counter;
     }
 
     public boolean countdownVCState() {
-        if (!isEvenView)
-            return oddViewResources.countdownVCState();
-        return false;
+        return 0 == --vc_state_counter;
+    }
+
+    public boolean countdownVCStateLock() {
+        return 0 == --vc_state_lock_counter;
     }
 
 }
