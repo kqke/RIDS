@@ -27,13 +27,19 @@ public class Paxos extends ViewChangeAbleNode {
     /*
      * On fresh view
      */
-    private boolean is_even_view() {
-        return (view() % 2) == 0;
+    @Override
+    protected void on_view_update( int old_view, int view) {
+        if ( is_even_view( old_view ) || (view - old_view) > 1 )
+            this.viewResources = new PaxosViewResources(N, F);
+    }
+
+    private boolean is_even_view( int view ) {
+        return (view % 2) == 0;
     }
 
     @Override
     protected void send_view_beginning_message() {
-        if ( is_even_view() )
+        if ( is_even_view( view() ) )
             sendToAll(
                     new PaxosMessage(id, -1, viewResources.getViewVal(), view(), storage(), PaxosMessageType.OFFER)
             );
@@ -46,11 +52,17 @@ public class Paxos extends ViewChangeAbleNode {
     /*
      * Locked value
      */
+    @Override
+    protected void on_storage_update() {
+        this.viewResources = new PaxosViewResources(N, F);
+        unlock();
+    }
+
     protected boolean is_locked() {
         return locked_value != null;
     }
 
-    protected void unlock () {
+    protected void unlock() {
         locked_value = null;
     }
 
@@ -67,41 +79,34 @@ public class Paxos extends ViewChangeAbleNode {
      */
     @Override
     protected boolean handle(PaxosMessage msg) {
-        if ( super.handle(msg) || to_ignore(msg) )
-            return false;
+        if ( super.handle(msg) )
+            return true;
 
-        view_change_if_needed(msg);
         switch(msg.type){
             case OFFER:
                 offerMessage(msg);
-                break;
+                return true;
             case ACK_OFFER:
                 ackOfferMessage(msg);
-                break;
+                return true;
             case LOCK:
                 lockMessage(msg);
-                break;
+                return true;
             case ACK_LOCK:
                 ackLockMessage(msg);
-                break;
+                return true;
             case DONE:
                 doneMessage();
-                break;
+                return true;
             case VOTE:
                 voteMessage(msg);
-                break;
+                return true;
             case VC_STATE:
                 vcStateMessage(msg);
-                break;
-            case HISTORY_REQ:
-                historyReqMessage(msg);
-                break;
-            case HISTORY:
-                historyMessage(msg);
-                break;
+                return true;
         }
 
-        return true;
+        return false;
     }
 
     private void offerMessage(PaxosMessage message){
@@ -165,7 +170,6 @@ public class Paxos extends ViewChangeAbleNode {
                     break;
             }
             view_update();
-            view_change();
         }
     }
 
@@ -173,7 +177,5 @@ public class Paxos extends ViewChangeAbleNode {
 
     private void commit(){};
 
-    private void historyReqMessage(PaxosMessage message){}
 
-    private void historyMessage(PaxosMessage message){}
 }

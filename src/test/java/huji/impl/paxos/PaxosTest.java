@@ -7,11 +7,17 @@ import huji.impl.paxos.messages.PaxosValue;
 import huji.logger.Logger;
 
 class PaxosTest extends Paxos {
+    public static final int N = 6;
     Logger logger;
 
     public PaxosTest(CommunicationChannel<PaxosMessage, PaxosValue> channel, Logger logger) {
-        super(channel);
+        super(channel, N);
         this.logger = logger;
+    }
+
+    @Override
+    public void send(PaxosMessage message) {
+        super.send(message);
     }
 
     @Override

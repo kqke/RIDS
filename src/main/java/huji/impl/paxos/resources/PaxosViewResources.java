@@ -7,8 +7,8 @@ import java.util.Hashtable;
 public class PaxosViewResources {
 
     // Protocol parameters
-    private int N;
-    private int F;
+    private final int N;
+    private final int F;
 
     // Values table
     private Hashtable<Integer, PaxosValue> values;
