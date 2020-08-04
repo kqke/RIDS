@@ -1,19 +1,32 @@
 package huji.impl.paxos.messages;
 
 public class PaxosValue implements Comparable<PaxosValue> {
-    public final String string_value;
+    public final String value;
 
-    public PaxosValue(String value){
-        this.string_value = value;
+    public PaxosValue(String value, int value_id){
+        this.value = value;
     }
 
     @Override
     public String toString() {
-        return string_value;
+        return value + " " + hashCode();
     }
 
     @Override
-    public int compareTo(PaxosValue o) {
-        return 0;
+    public int compareTo(PaxosValue other) {
+        return other.hashCode() - this.hashCode();
+    }
+
+    @Override
+    public int hashCode() {
+        return super.hashCode();
+    }
+
+    @Override
+    public boolean equals(Object other) {
+        if ( ! ( other instanceof PaxosValue ) )
+            return false;
+
+        return other.hashCode() == this.hashCode();
     }
 }

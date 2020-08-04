@@ -42,6 +42,11 @@ public class Message<T> extends Delayable {
         return this;
     }
 
+    public Message<T> add_properties(Map<String,Object> values) {
+        this.properties.putAll(values);
+        return this;
+    }
+
     public Object get_property(String key) {
         return this.properties.get(key);
     }

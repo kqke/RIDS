@@ -10,11 +10,11 @@ import java.util.Queue;
 
 public abstract class Node<T> extends Process implements CommunicationAble<T> {
     protected final int id;
-    protected final CommunicationChannel channel;
+    protected final CommunicationChannel<T> channel;
 
     private final Queue<Message<T>> messages;
 
-    public Node(CommunicationChannel channel) {
+    public Node(CommunicationChannel<T> channel) {
         this.channel = channel;
         this.id = channel.register(this);
         this.messages = new LinkedList<>();

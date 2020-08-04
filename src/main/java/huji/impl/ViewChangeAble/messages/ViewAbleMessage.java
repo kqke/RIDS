@@ -42,4 +42,10 @@ public class ViewAbleMessage<T extends Comparable<T>> extends Message<T> {
         super.add_property(key, value);
         return this;
     }
+
+    @Override
+    public ViewAbleMessage<T> add_properties(Map<String, Object> values) {
+        super.add_properties(values);
+        return this;
+    }
 }
