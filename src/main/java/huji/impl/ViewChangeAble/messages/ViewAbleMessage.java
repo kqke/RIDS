@@ -2,6 +2,8 @@ package huji.impl.ViewChangeAble.messages;
 
 import huji.message.Message;
 
+import java.util.Map;
+
 public class ViewAbleMessage<T extends Comparable<T>> extends Message<T> {
     public final int storage;
     public final int view;

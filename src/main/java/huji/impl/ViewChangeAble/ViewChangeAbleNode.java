@@ -123,7 +123,7 @@ public abstract class ViewChangeAbleNode<T extends Comparable<T>> extends Replic
     }
 
     protected void req_history(int start, int end) {
-        sendToAll(
+        sendToReplicas(
                 new ViewAbleMessage<T>(
                         id,
                         -1,
@@ -138,10 +138,27 @@ public abstract class ViewChangeAbleNode<T extends Comparable<T>> extends Replic
     }
 
     protected void historyReqMessage(ViewAbleMessage<T> message) {
-        // TODO
+        Map<Integer,T> history = get_committed(
+                message.get_int_property("start"),
+                message.get_int_property("end")
+        );
+
+        send(
+                new ViewAbleMessage<T>(
+                        id,
+                        message.from,
+                        null,
+                        view(),
+                        storage(),
+                        ViewAbleType.HISTORY
+                )
+                        .add_property("history", history)
+        );
     }
 
     protected void historyMessage(ViewAbleMessage<T> message) {
-        // TODO
+        commit(
+                message.get_map_property("history")
+        );
     }
 }

@@ -1,4 +1,4 @@
-package huji.impl.secretShare;
+package huji.secretShare;
 
 import huji.interfaces.SecretShare;
 

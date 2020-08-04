@@ -10,10 +10,10 @@ import huji.interfaces.CommunicationAble;
 import huji.message.Message;
 import huji.interfaces.Process;
 
-public class AsyncChannel<T extends Message<R>, R> extends Process implements CommunicationChannel<T, R> {
+public class AsyncChannel<T extends Comparable<T>> extends Process implements CommunicationChannel<T> {
 
-    protected DelayQueue<T> communication_queue;
-    protected Hashtable<Integer, CommunicationAble<T, R>> parties;
+    protected DelayQueue<Message<T>> communication_queue;
+    protected Hashtable<Integer, CommunicationAble<T>> parties;
     protected List<Integer> replicas;
     private final Random random;
     private final Iterator<Integer> ids;
@@ -26,13 +26,13 @@ public class AsyncChannel<T extends Message<R>, R> extends Process implements Co
         this.replicas = new LinkedList<>();
     }
 
-    public int register(CommunicationAble<T, R> party){
+    public int register(CommunicationAble<T> party){
         int id = getID();
         parties.put(id, party);
         return id;
     }
 
-    public void register_replica(CommunicationAble<T, R> party){
+    public void register_replica(CommunicationAble<T> party){
         replicas.add(party.get_id());
     }
 
@@ -44,13 +44,13 @@ public class AsyncChannel<T extends Message<R>, R> extends Process implements Co
     @Override
     protected void running_process() {
         try {
-            T msg = communication_queue.take();
+            Message<T> msg = communication_queue.take();
             parties.get(msg.to).receive(msg);
         }
         catch (Exception ignored){}
     }
 
-    public void send(T message) {
+    public void send(Message<T> message) {
         final int rand = random.nextInt(10);
 
         if ( rand < 4 )
