@@ -1,9 +1,11 @@
-package huji.impl.paxos.messages;
+package huji.impl.dummyUser;
 
-public class PaxosValue implements Comparable<PaxosValue> {
+import huji.impl.paxos.messages.PaxosValue;
+
+public class DummyValue implements Comparable<DummyValue> {
     public final String value;
 
-    public PaxosValue(String value){
+    public DummyValue(String value){
         this.value = value;
     }
 
@@ -13,7 +15,7 @@ public class PaxosValue implements Comparable<PaxosValue> {
     }
 
     @Override
-    public int compareTo(PaxosValue other) {
+    public int compareTo(DummyValue other) {
         return other.hashCode() - this.hashCode();
     }
 

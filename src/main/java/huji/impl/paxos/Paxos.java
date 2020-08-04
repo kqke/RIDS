@@ -4,12 +4,11 @@ import huji.channel.CommunicationChannel;
 import huji.impl.ViewChangeAble.ViewChangeAbleNode;
 import huji.impl.paxos.messages.PaxosMessage;
 import huji.impl.paxos.messages.PaxosMessageType;
-import huji.impl.paxos.messages.PaxosValue;
 import huji.impl.paxos.resources.PaxosViewResources;
 import huji.interfaces.SecretShare;
 import huji.message.Message;
 
-public class Paxos extends ViewChangeAbleNode<PaxosValue> {
+public class Paxos<T extends Comparable<T>> extends ViewChangeAbleNode<T> {
 
     // Protocol parameters
     private final int N;
@@ -20,19 +19,19 @@ public class Paxos extends ViewChangeAbleNode<PaxosValue> {
 
     // View resources
     private boolean is_locked = false;
-    private PaxosValue value = null;
+    private T value = null;
     private Integer value_view = 0;
-    private PaxosViewResources viewResources;
+    private PaxosViewResources<T> viewResources;
 
     // Leader
     private int L;
 
-    public Paxos(CommunicationChannel<PaxosValue> channel, int N, SecretShare secretShare) {
+    public Paxos(CommunicationChannel<T> channel, int N, SecretShare secretShare) {
         super(channel);
         this.N = N;
         this.F = N / 2;
         this.secretShare = secretShare;
-        this.viewResources = new PaxosViewResources(N, F);
+        this.viewResources = new PaxosViewResources<>(N, F);
     }
 
     /*
@@ -41,7 +40,7 @@ public class Paxos extends ViewChangeAbleNode<PaxosValue> {
     @Override
     protected void on_view_update( int old_view, int view ) {
         if ( is_even_view( old_view ) || (view - old_view) > 1 ) {
-            viewResources = new PaxosViewResources(N, F);
+            viewResources = new PaxosViewResources<>(N, F);
         }
     }
 
@@ -79,7 +78,7 @@ public class Paxos extends ViewChangeAbleNode<PaxosValue> {
      */
     @Override
     protected void on_storage_update() {
-        this.viewResources = new PaxosViewResources(N, F);
+        this.viewResources = new PaxosViewResources<>(N, F);
         unlock();
     }
 
@@ -87,7 +86,7 @@ public class Paxos extends ViewChangeAbleNode<PaxosValue> {
         is_locked = false;
     }
 
-    protected void lock( PaxosValue val, int view ) {
+    protected void lock( T val, int view ) {
         is_locked = true;
         value = val;
         value_view = view;
@@ -97,14 +96,14 @@ public class Paxos extends ViewChangeAbleNode<PaxosValue> {
      * Handle
      */
     @Override
-    protected boolean handle(Message<PaxosValue> msg) {
+    protected boolean handle(Message<T> msg) {
         if ( super.handle(msg) )
             return true;
 
         if ( ! (msg instanceof PaxosMessage) )
             return false;
 
-        PaxosMessage paxos_msg = (PaxosMessage) msg;
+        PaxosMessage<T> paxos_msg = (PaxosMessage<T>) msg;
 
         switch(paxos_msg.ptype){
             case OFFER:
@@ -135,7 +134,7 @@ public class Paxos extends ViewChangeAbleNode<PaxosValue> {
         return true;
     }
 
-    private void handle_offer_message(PaxosMessage message) {
+    private void handle_offer_message(PaxosMessage<T> message) {
         if ( is_locked && value_view > message.get_int_property("offer_view") )
             send(
                     msgToOne(message.from, value, PaxosMessageType.ACK_OFFER)
@@ -150,7 +149,7 @@ public class Paxos extends ViewChangeAbleNode<PaxosValue> {
             );
     }
 
-    private void handle_ackOffer_message(PaxosMessage message){
+    private void handle_ackOffer_message(PaxosMessage<T> message){
         if ( message.get_bool_property("locked") )
             viewResources.put_locked_ack(message.body, message.get_int_property("offer_view"));
 
@@ -164,7 +163,7 @@ public class Paxos extends ViewChangeAbleNode<PaxosValue> {
         }
     }
 
-    private void handle_lock_message(PaxosMessage message) {
+    private void handle_lock_message(PaxosMessage<T> message) {
         viewResources.lock(message.from, message.body);
         send(
                 msgToOne(message.from, null, PaxosMessageType.ACK_LOCK)
@@ -178,14 +177,14 @@ public class Paxos extends ViewChangeAbleNode<PaxosValue> {
             );
     }
 
-    private void handle_done_message(PaxosMessage message){
+    private void handle_done_message(PaxosMessage<T> message){
         viewResources.done(message.from, message.body);
         if ( viewResources.countdown_Done() ) {
             view_update();
         }
     }
 
-    private void handle_vote_message(PaxosMessage message){
+    private void handle_vote_message(PaxosMessage<T> message){
         viewResources.put_secret(message.from, message.get_int_property("share"));
         if ( viewResources.countdown_Vote() ) {
             compute_leader();
@@ -196,7 +195,7 @@ public class Paxos extends ViewChangeAbleNode<PaxosValue> {
         }
     }
 
-    private void handle_vc_message(PaxosMessage message) {
+    private void handle_vc_message(PaxosMessage<T> message) {
         viewResources.putVCState(message.get_state_property("state"), message.body, L);
 
         if ( viewResources.countdown_VCState() ) {
@@ -219,9 +218,9 @@ public class Paxos extends ViewChangeAbleNode<PaxosValue> {
         L = secretShare.decode(view(), viewResources.getShares());
     }
 
-    private PaxosMessage msgToOne(int to, PaxosValue body, PaxosMessageType type){
+    private PaxosMessage<T> msgToOne(int to, T body, PaxosMessageType type){
         return
-                new PaxosMessage(
+                new PaxosMessage<>(
                 id,
                 to,
                 body,
@@ -230,9 +229,9 @@ public class Paxos extends ViewChangeAbleNode<PaxosValue> {
                 type);
     }
 
-    private PaxosMessage msgToReplicas(PaxosValue body, PaxosMessageType type){
+    private PaxosMessage<T> msgToReplicas(T body, PaxosMessageType type){
         return
-                new PaxosMessage(
+                new PaxosMessage<>(
                         id,
                         -1,
                         body,

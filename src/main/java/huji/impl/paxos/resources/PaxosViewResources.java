@@ -1,26 +1,25 @@
 package huji.impl.paxos.resources;
 
-import huji.impl.paxos.messages.PaxosValue;
 import huji.interfaces.Pair;
 
 import java.util.HashMap;
 
 import static huji.impl.paxos.resources.PaxosVCState.*;
 
-public class PaxosViewResources {
+public class PaxosViewResources<T extends Comparable<T>> {
 
     // Protocol parameters
     private final int N;
     private final int F;
 
     // Values table
-    private final HashMap<Integer, Pair<PaxosValue, PaxosVCState>> offer_values;
+    private final HashMap<Integer, Pair<T, PaxosVCState>> offer_values;
 
     // Shares table
     private final HashMap<Integer, Integer> shares;
 
     // Temp lock
-    PaxosValue temp_lock_val = null;
+    T temp_lock_val = null;
     int temp_lock_view = -1;
 
     // VC state
@@ -38,22 +37,22 @@ public class PaxosViewResources {
 
     /* Ack offer */
 
-    public void put_locked_ack(PaxosValue value, int view) {
+    public void put_locked_ack(T value, int view) {
         if ( view > temp_lock_view ) {
             temp_lock_val = value;
             temp_lock_view = view;
         }
     }
     public boolean exists_locked_ack(){ return temp_lock_view != -1; }
-    public PaxosValue getLock(){ return temp_lock_val; }
+    public T getLock(){ return temp_lock_val; }
     public int getLockView(){ return temp_lock_view; }
 
     /* Even */
-    public void lock(int from, PaxosValue val){
+    public void lock(int from, T val){
         offer_values.put(from, new Pair<>(val, LOCK));
     }
 
-    public void done(int from, PaxosValue val){
+    public void done(int from, T val){
         offer_values.put(from, new Pair<>(val, DONE));
     }
 
@@ -68,7 +67,7 @@ public class PaxosViewResources {
 
     /* VC */
 
-    public void putVCState(PaxosVCState type, PaxosValue val, int leader){
+    public void putVCState(PaxosVCState type, T val, int leader){
         if ( val != null )
             temp_lock_val = val;
 
@@ -92,15 +91,15 @@ public class PaxosViewResources {
         return vc_state;
     }
 
-    public PaxosValue getPartyVal(int i){
-        Pair<PaxosValue, PaxosVCState> pair = offer_values.get(i);
+    public T getPartyVal(int i){
+        Pair<T, PaxosVCState> pair = offer_values.get(i);
         if ( pair != null )
             return pair.left;
         return null;
     }
 
     public PaxosVCState getPartyState(int i){
-        Pair<PaxosValue, PaxosVCState> pair = offer_values.get(i);
+        Pair<T, PaxosVCState> pair = offer_values.get(i);
         if ( pair != null )
             return pair.right;
         return NONE;
