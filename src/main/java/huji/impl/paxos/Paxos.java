@@ -217,4 +217,8 @@ public class Paxos extends ViewChangeAbleNode {
         L = secretShare.decode(view(), viewResources.getShares());
     }
 
+    private void commit(){
+        // TODO - overrride the method and check if we have to take a new client message!
+    }
+
 }
