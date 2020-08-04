@@ -39,10 +39,4 @@ public class PaxosMessage extends ViewAbleMessage<PaxosValue> {
         super.add_property(key, value);
         return this;
     }
-
-    @Override
-    public PaxosMessage add_properties(Map<String, Object> values) {
-        super.add_properties(values);
-        return this;
-    }
 }

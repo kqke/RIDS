@@ -2,7 +2,7 @@ package huji.impl.paxos.resources;
 
 import huji.impl.paxos.messages.PaxosMessageType;
 import huji.impl.paxos.messages.PaxosValue;
-import javafx.util.Pair;
+import huji.interfaces.Pair;
 
 import java.util.HashMap;
 
@@ -125,7 +125,7 @@ public class PaxosViewResources {
     public PaxosValue getPartyVal(int i){
         Pair<PaxosValue, PaxosVCState> pair = values.get(i);
         if(pair != null){
-            return pair.getKey();
+            return pair.left;
         }
         return null;
     }
@@ -133,7 +133,7 @@ public class PaxosViewResources {
     public PaxosVCState getPartyState(int i){
         Pair<PaxosValue, PaxosVCState> pair = values.get(i);
         if(pair != null){
-            return pair.getValue();
+            return pair.right;
         }
         return NONE;
     }

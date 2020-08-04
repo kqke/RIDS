@@ -9,7 +9,6 @@ import huji.impl.paxos.resources.PaxosViewResources;
 import huji.interfaces.SecretShare;
 import huji.message.Message;
 
-
 public class Paxos extends ViewChangeAbleNode<PaxosValue> {
 
     // Protocol parameters
