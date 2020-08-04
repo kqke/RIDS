@@ -3,8 +3,6 @@ package huji.impl.paxos;
 import huji.channel.CommunicationChannel;
 import huji.channel.impl.AsyncChannel;
 import huji.impl.dummyUser.DummyNode;
-import huji.impl.ViewChangeAble.messages.ViewAbleMessage;
-import huji.impl.paxos.messages.PaxosMessage;
 import huji.impl.paxos.messages.PaxosValue;
 import huji.interfaces.SecretShare;
 import huji.logger.Log;

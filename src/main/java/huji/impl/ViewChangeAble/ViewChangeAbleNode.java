@@ -89,6 +89,11 @@ public abstract class ViewChangeAbleNode<T extends Comparable<T>> extends Replic
         on_storage_update();
     }
 
+    protected void commit(T value) {
+        super.commit(storage(), value);
+        storage_update();
+    }
+
     protected void on_storage_update(){}
 
     /*

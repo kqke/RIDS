@@ -20,6 +20,8 @@ public abstract class ReplicaNode<T extends Comparable<T>> extends Node<T> {
 
     protected void commit(int storage, T value) {
         committed.putIfAbsent(storage, value);
+        if ( value.equals( client_messages.peek() ) )
+            client_messages.remove();
     }
 
     protected void commit(Map<Integer,T> values) {
@@ -42,12 +44,8 @@ public abstract class ReplicaNode<T extends Comparable<T>> extends Node<T> {
         return get_committed(start, -1);
     }
 
-    protected T peek_client_message(){
+    protected T peek_client_message() {
         return client_messages.peek();
-    }
-
-    protected T clear_client_message(){
-        return client_messages.poll();
     }
 
     @Override
@@ -55,7 +53,7 @@ public abstract class ReplicaNode<T extends Comparable<T>> extends Node<T> {
         return super.running_condition() || !client_messages.isEmpty();
     }
 
-    protected boolean handle(Message<T> msg){
+    protected boolean handle(Message<T> msg) {
         if ( msg.isClient ) {
             client_messages.add( msg.body );
             return true;

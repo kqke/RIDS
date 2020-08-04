@@ -1,6 +1,5 @@
 package huji.impl.paxos.resources;
 
-import huji.impl.paxos.messages.PaxosMessageType;
 import huji.impl.paxos.messages.PaxosValue;
 import huji.interfaces.Pair;
 
@@ -15,41 +14,108 @@ public class PaxosViewResources {
     private final int F;
 
     // Values table
-    private HashMap<Integer, Pair<PaxosValue, PaxosVCState>> values;
+    private final HashMap<Integer, Pair<PaxosValue, PaxosVCState>> offer_values;
 
     // Shares table
-    private HashMap<Integer, Integer> shares;
+    private final HashMap<Integer, Integer> shares;
 
-    //Temp lock
-    PaxosValue temp_lock_val;
-    int temp_lock_view;
-
-    // Even view counters
-    private int ack_offer_counter;
-    private int ack_lock_counter;
-    private int done_counter;
-
-    // Odd view counters
-    private int vote_counter;
-    private int vc_state_counter;
-    private int vc_state_lock_counter;
+    // Temp lock
+    PaxosValue temp_lock_val = null;
+    int temp_lock_view = -1;
 
     // VC state
     private PaxosVCState vc_state;
-
-
 
     public PaxosViewResources(int n, int f){
         N = n;
         F = f;
         reset_counters();
-        values = new HashMap<>();
+        offer_values = new HashMap<>();
         shares = new HashMap<>();
 
         vc_state = NONE;
-
-        temp_lock_val = null;
     }
+
+    /* Ack offer */
+
+    public void put_locked_ack(PaxosValue value, int view) {
+        if ( view > temp_lock_view ) {
+            temp_lock_val = value;
+            temp_lock_view = view;
+        }
+    }
+    public boolean exists_locked_ack(){ return temp_lock_view != -1; }
+    public PaxosValue getLock(){ return temp_lock_val; }
+    public int getLockView(){ return temp_lock_view; }
+
+    /* Even */
+    public void lock(int from, PaxosValue val){
+        offer_values.put(from, new Pair<>(val, LOCK));
+    }
+
+    public void done(int from, PaxosValue val){
+        offer_values.put(from, new Pair<>(val, DONE));
+    }
+
+    /* Secret share */
+    public void put_secret(int from, int val){
+        shares.put(from, val);
+    }
+
+    public HashMap<Integer, Integer> getShares() {
+        return shares;
+    }
+
+    /* VC */
+
+    public void putVCState(PaxosVCState type, PaxosValue val, int leader){
+        if ( val != null )
+            temp_lock_val = val;
+
+        if ( vc_state == DONE )
+            return;
+
+        switch(type) {
+            case DONE:
+                vc_state = DONE;
+                break;
+            case LOCK:
+                if ( countdown_VCStateLock() )
+                    vc_state = DONE;
+                else
+                    vc_state = LOCK;
+                break;
+        }
+    }
+
+    public PaxosVCState VCState(){
+        return vc_state;
+    }
+
+    public PaxosValue getPartyVal(int i){
+        Pair<PaxosValue, PaxosVCState> pair = offer_values.get(i);
+        if ( pair != null )
+            return pair.left;
+        return null;
+    }
+
+    public PaxosVCState getPartyState(int i){
+        Pair<PaxosValue, PaxosVCState> pair = offer_values.get(i);
+        if ( pair != null )
+            return pair.right;
+        return NONE;
+    }
+
+    /*
+     * counters
+     */
+
+    private int ack_offer_counter;
+    private int ack_lock_counter;
+    private int done_counter;
+    private int vote_counter;
+    private int vc_state_counter;
+    private int vc_state_lock_counter;
 
     private void reset_counters(){
         ack_offer_counter = N - F;
@@ -60,106 +126,10 @@ public class PaxosViewResources {
         vc_state_lock_counter = N - F;
     }
 
-
-    public void putVal(int from, PaxosValue val){
-        values.put(from, new Pair<>(val, NONE));
-    }
-
-    public void putLockedVal(PaxosValue val, int view){
-        if (temp_lock_val == null || view > temp_lock_view) {
-            temp_lock_val = val;
-            temp_lock_view = view;
-        }
-    }
-
-    public boolean changeLock(){
-        return temp_lock_val != null;
-    }
-
-    public PaxosValue getLock(){
-        return temp_lock_val;
-    }
-
-    public int getLockView(){
-        return temp_lock_view;
-    }
-
-    public void lock(int from, PaxosValue val){
-        values.put(from, new Pair<>(val, LOCK));
-    }
-
-    public void done(int from, PaxosValue val){
-        values.put(from, new Pair<>(val, DONE));
-    }
-
-
-    public void putShare(int from, int val){
-        shares.put(from, val);
-    }
-
-    public HashMap<Integer, Integer> getShares() {
-        return shares;
-    }
-
-    public void putVCState(PaxosMessageType type, PaxosValue val, int leader){
-        if(vc_state == DONE)
-            return;
-        switch(type){
-            case VC_STATE_DONE:
-                vc_state = DONE;
-                break;
-            case VC_STATE_LOCK:
-                if(countdownVCStateLock())
-                    vc_state = DONE;
-                else
-                    if(vc_state != DONE)
-                        vc_state = LOCK;
-                break;
-        }
-    }
-
-    public PaxosVCState VCState(){
-        return vc_state;
-    }
-
-    public PaxosValue getPartyVal(int i){
-        Pair<PaxosValue, PaxosVCState> pair = values.get(i);
-        if(pair != null){
-            return pair.left;
-        }
-        return null;
-    }
-
-    public PaxosVCState getPartyState(int i){
-        Pair<PaxosValue, PaxosVCState> pair = values.get(i);
-        if(pair != null){
-            return pair.right;
-        }
-        return NONE;
-    }
-
-    public boolean countdownAckOffer() {
-        return 0 == --ack_offer_counter;
-    }
-
-    public boolean countdownAckLock() {
-        return 0 == --ack_lock_counter;
-    }
-
-    public boolean countdownDone() {
-        return 0 == --done_counter;
-    }
-
-    public boolean countdownVote() {
-        return 0 == --vote_counter;
-    }
-
-    public boolean countdownVCState() {
-        return 0 == --vc_state_counter;
-    }
-
-    public boolean countdownVCStateLock() {
-        return 0 == --vc_state_lock_counter;
-    }
-
+    public boolean countdown_AckOffer() { return 0 == --ack_offer_counter; }
+    public boolean countdown_AckLock() { return 0 == --ack_lock_counter; }
+    public boolean countdown_Done() { return 0 == --done_counter; }
+    public boolean countdown_Vote() { return 0 == --vote_counter; }
+    public boolean countdown_VCState() { return 0 == --vc_state_counter; }
+    public boolean countdown_VCStateLock() { return 0 == --vc_state_lock_counter; }
 }

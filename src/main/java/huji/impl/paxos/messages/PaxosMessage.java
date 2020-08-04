@@ -2,6 +2,7 @@ package huji.impl.paxos.messages;
 
 import huji.impl.ViewChangeAble.messages.ViewAbleMessage;
 import huji.impl.ViewChangeAble.messages.ViewAbleType;
+import huji.impl.paxos.resources.PaxosVCState;
 
 import java.util.Map;
 
@@ -38,5 +39,9 @@ public class PaxosMessage extends ViewAbleMessage<PaxosValue> {
     public PaxosMessage add_property(String key, Object value) {
         super.add_property(key, value);
         return this;
+    }
+
+    public PaxosVCState get_state_property(String key) {
+        return (PaxosVCState) this.properties.get(key);
     }
 }

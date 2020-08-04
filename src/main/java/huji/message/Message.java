@@ -58,6 +58,10 @@ public class Message<T> extends Delayable {
         return (Integer) this.properties.get(key);
     }
 
+    public boolean get_bool_property(String key) {
+        return (Boolean) this.properties.get(key);
+    }
+
     @Override
     public String toString() {
         if ( isClient )
