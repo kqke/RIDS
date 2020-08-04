@@ -4,20 +4,25 @@ import huji.channel.CommunicationChannel;
 import huji.channel.impl.AsyncChannel;
 import huji.impl.dummyUser.DummyNode;
 import huji.impl.ViewChangeAble.messages.ViewAbleMessage;
+import huji.impl.paxos.messages.PaxosMessage;
 import huji.impl.paxos.messages.PaxosValue;
+import huji.interfaces.SecretShare;
 import huji.logger.Log;
 import huji.logger.Logger;
+import huji.message.Message;
+import huji.secretShare.ShamirSecretShare;
 
 import java.util.*;
 
 class PaxosTest extends Paxos {
     public static final int N = 6;
     public static final Logger logger = new Logger();
+    public static final SecretShare secret_share = new ShamirSecretShare(N, N/2);
 
     Set<Integer> restrictions = new HashSet<>(N);
 
-    public PaxosTest(CommunicationChannel<ViewAbleMessage, PaxosValue> channel) {
-        super(channel, N);
+    public PaxosTest(CommunicationChannel<PaxosValue> channel) {
+        super(channel, N, secret_share);
     }
 
     /*
@@ -25,7 +30,7 @@ class PaxosTest extends Paxos {
      */
 
     @Override
-    public void send(ViewAbleMessage message) {
+    public void send(Message<PaxosValue> message) {
         if ( message.to == 0 )
             synchronized (System.out) {
                 System.out.println(message);
@@ -47,7 +52,7 @@ class PaxosTest extends Paxos {
      */
 
     @Override
-    protected boolean handle(ViewAbleMessage msg) {
+    protected boolean handle(Message<PaxosValue> msg) {
         logger.add(
                 new Log()
         );
@@ -59,10 +64,10 @@ class PaxosTest extends Paxos {
      */
     public static void main(String[] args) {
         // start channel
-        AsyncChannel<ViewAbleMessage, PaxosValue> channel = new AsyncChannel<>();
+        AsyncChannel<PaxosValue> channel = new AsyncChannel<>();
 
         // register users
-        DummyNode<ViewAbleMessage, PaxosValue> dummy = new DummyNode<>(channel);
+        DummyNode dummy = new DummyNode(channel);
         Map<Integer, PaxosTest> replicas = new HashMap<>(N);
         for ( int i = 0; i < N; ++i ) {
             PaxosTest replica = new PaxosTest(channel);

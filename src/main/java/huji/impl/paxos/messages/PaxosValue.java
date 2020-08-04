@@ -3,7 +3,7 @@ package huji.impl.paxos.messages;
 public class PaxosValue implements Comparable<PaxosValue> {
     public final String value;
 
-    public PaxosValue(String value, int value_id){
+    public PaxosValue(String value){
         this.value = value;
     }
 

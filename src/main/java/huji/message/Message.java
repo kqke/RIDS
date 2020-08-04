@@ -34,16 +34,11 @@ public class Message<T> extends Delayable {
     }
 
     public Message<T> copy(int to) {
-        return new Message<T>(this,to);
+        return new Message<>(this,to);
     }
 
     public Message<T> add_property(String key, Object value) {
         this.properties.putIfAbsent(key, value);
-        return this;
-    }
-
-    public Message<T> add_properties(Map<String,Object> values) {
-        this.properties.putAll(values);
         return this;
     }
 

@@ -1,6 +1,6 @@
 package huji.impl.paxos;
 
-import huji.impl.ViewChangeAble.messages.ViewAbleMessage;
+import huji.impl.paxos.messages.PaxosMessage;
 import huji.impl.paxos.messages.PaxosValue;
 
 import java.util.Map;
@@ -65,13 +65,14 @@ public class UserCommandLine implements Runnable {
 
     private void cmd_user(int replica, String str) {
         replicas.get(replica).receive(
-                new ViewAbleMessage(
+                new PaxosMessage(
                         0,
                         replica,
-                        new PaxosValue(),
+                        new PaxosValue(str),
+                        true,
                         -1,
                         -1,
-                        // TODO
+                        null
                 )
         );
     }
@@ -81,9 +82,9 @@ public class UserCommandLine implements Runnable {
      */
 
     private void cmd_history(int replica, int start_view) {
-        PaxosTest getter = replicas.get(replica);
-        getter.get_committed(start_view, getter.storage());
-        // TODO
+        replicas.get(replica).get_committed(start_view).forEach(
+                (storage,value) -> System.out.println("storage: " + storage + ", value: " + value)
+        );
     }
 
     /*

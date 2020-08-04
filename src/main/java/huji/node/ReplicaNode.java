@@ -28,14 +28,18 @@ public abstract class ReplicaNode<T extends Comparable<T>> extends Node<T> {
         }
     }
 
-    protected Map<Integer,T> get_committed(int start, int end) {
+    public Map<Integer,T> get_committed(int start, int end) {
         Map<Integer,T> output = new HashMap<>(end - start);
         for ( Map.Entry<Integer,T> entry : committed.entrySet() ) {
-            if ( start <= entry.getKey() & entry.getKey() < end )
+            if ( start <= entry.getKey() && ( entry.getKey() < end || end == -1) )
                 output.put(entry.getKey(), entry.getValue());
         }
 
         return output;
+    }
+
+    public Map<Integer,T> get_committed(int start) {
+        return get_committed(start, -1);
     }
 
     protected T peek_client_message(){

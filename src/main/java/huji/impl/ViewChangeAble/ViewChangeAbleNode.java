@@ -117,11 +117,6 @@ public abstract class ViewChangeAbleNode<T extends Comparable<T>> extends Replic
      * History
      */
 
-    @Override
-    protected Map<Integer, T> get_committed(int start, int end) {
-        return super.get_committed(start, end);
-    }
-
     protected void req_history(int start, int end) {
         sendToReplicas(
                 new ViewAbleMessage<T>(
