@@ -2,6 +2,7 @@ package huji.impl.paxos.resources;
 
 import huji.impl.paxos.messages.PaxosMessageType;
 import huji.impl.paxos.messages.PaxosValue;
+import javafx.util.Pair;
 
 import java.util.HashMap;
 
@@ -21,6 +22,7 @@ public class PaxosViewResources {
 
     //Temp lock
     PaxosValue temp_lock_val;
+    int temp_lock_view;
 
     // Even view counters
     private int ack_offer_counter;
@@ -35,8 +37,6 @@ public class PaxosViewResources {
     // VC state
     private PaxosVCState vc_state;
 
-    // View value
-    private PaxosValue view_val;
 
 
     public PaxosViewResources(int n, int f){
@@ -65,9 +65,11 @@ public class PaxosViewResources {
         values.put(from, new Pair<>(val, NONE));
     }
 
-    public void putLockedVal(PaxosValue val){
-        if (temp_lock_val == null || val.view > temp_lock_val.view)
+    public void putLockedVal(PaxosValue val, int view){
+        if (temp_lock_val == null || view > temp_lock_view) {
             temp_lock_val = val;
+            temp_lock_view = view;
+        }
     }
 
     public boolean changeLock(){
@@ -76,6 +78,10 @@ public class PaxosViewResources {
 
     public PaxosValue getLock(){
         return temp_lock_val;
+    }
+
+    public int getLockView(){
+        return temp_lock_view;
     }
 
     public void lock(int from, PaxosValue val){
@@ -95,7 +101,7 @@ public class PaxosViewResources {
         return shares;
     }
 
-    public void putVCState(PaxosMessageType type){
+    public void putVCState(PaxosMessageType type, PaxosValue val, int leader){
         if(vc_state == DONE)
             return;
         switch(type){
