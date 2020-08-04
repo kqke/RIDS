@@ -5,6 +5,7 @@ import huji.impl.paxos.messages.PaxosMessage;
 import huji.impl.paxos.messages.PaxosMessageType;
 import huji.impl.paxos.messages.PaxosValue;
 import huji.impl.paxos.resources.PaxosViewResources;
+import huji.interfaces.SecretShare;
 
 
 public class Paxos extends ViewChangeAbleNode {
@@ -12,6 +13,9 @@ public class Paxos extends ViewChangeAbleNode {
     // Protocol parameters
     private final int N;
     private final int F;
+
+    //Secret share
+    private final SecretShare secretShare;
 
     // View resources
     private PaxosValue locked_value = null;
@@ -21,10 +25,11 @@ public class Paxos extends ViewChangeAbleNode {
     // Leader
     private int L;
 
-    public Paxos(CommunicationChannel<PaxosMessage, PaxosValue> channel, int N) {
+    public Paxos(CommunicationChannel<PaxosMessage, PaxosValue> channel, int N, SecretShare secretShare) {
         super(channel);
         this.N = N;
         this.F = N / 2;
+        this.secretShare = secretShare;
         this.viewResources = new PaxosViewResources(N, F);
     }
 
@@ -33,8 +38,13 @@ public class Paxos extends ViewChangeAbleNode {
      */
     @Override
     protected void on_view_update( int old_view, int view) {
-        if ( is_even_view( old_view ) || (view - old_view) > 1 )
+        if ( is_even_view( old_view ) || (view - old_view) > 1 ) {
             this.viewResources = new PaxosViewResources(N, F);
+            if(is_locked())
+                my_val = locked_value();
+            else
+                my_val = client_messages.peek();
+        }
     }
 
     private boolean is_even_view( int view ) {
@@ -49,7 +59,7 @@ public class Paxos extends ViewChangeAbleNode {
             );
         else
             sendToAll(
-                    new PaxosMessage(id, -1, my_val, view(), storage(), PaxosMessageType.VOTE)
+                    new PaxosMessage(id, -1, my_val.setIntVal(secretShare.encode(view(), id)), view(), storage(), PaxosMessageType.VOTE)
             );
     }
 
@@ -72,6 +82,7 @@ public class Paxos extends ViewChangeAbleNode {
 
     protected void lock( PaxosValue val ) {
         locked_value = val;
+        my_val = val;
     }
 
     protected PaxosValue locked_value() {
@@ -93,13 +104,13 @@ public class Paxos extends ViewChangeAbleNode {
             case ACK_OFFER_LOCKED:
                 ackOfferLockedMessage(msg);
             case ACK_OFFER:
-                ackOfferMessage(msg);
+                ackOfferMessage();
                 return true;
             case LOCK:
                 lockMessage(msg);
                 return true;
             case ACK_LOCK:
-                ackLockMessage(msg);
+                ackLockMessage();
                 return true;
             case DONE:
                 doneMessage(msg);
@@ -133,10 +144,10 @@ public class Paxos extends ViewChangeAbleNode {
     }
 
     private void ackOfferLockedMessage(PaxosMessage message){
-        viewResources.putLockedVal(message);
+        viewResources.putLockedVal(message.body);
     }
 
-    private void ackOfferMessage(PaxosMessage message){
+    private void ackOfferMessage(){
         if (viewResources.countdownAckOffer()) {
             if(viewResources.changeLock())
                 lock(viewResources.getLock());
@@ -149,7 +160,7 @@ public class Paxos extends ViewChangeAbleNode {
         send(new PaxosMessage(id, message.from, message.body, view(), storage(), PaxosMessageType.ACK_LOCK));
     }
 
-    private void ackLockMessage(PaxosMessage message){
+    private void ackLockMessage(){
         if (viewResources.countdownAckLock())
             sendToAll(new PaxosMessage(id, -1, my_val, view(), storage(), PaxosMessageType.DONE));
     }
@@ -185,7 +196,7 @@ public class Paxos extends ViewChangeAbleNode {
     }
 
     private void vcStateMessage(PaxosMessage message){
-        viewResources.putVCState(message);
+        viewResources.putVCState(message.type);
         if(viewResources.countdownVCState()){
             switch(viewResources.VCState()){
                 case DONE:
@@ -203,7 +214,7 @@ public class Paxos extends ViewChangeAbleNode {
     }
 
     private void compute_leader(){
-        // TODO
+        L = secretShare.decode(view(), viewResources.getShares());
     }
 
 }
