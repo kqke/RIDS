@@ -1,16 +1,19 @@
-package huji.impl.paxos;
+package huji.impl.ViewChangeAble;
 
 import huji.channel.CommunicationChannel;
-import huji.impl.paxos.messages.PaxosMessage;
-import huji.impl.paxos.messages.PaxosValue;
+import huji.impl.ViewChangeAble.messages.ViewAbleMessage;
+import huji.impl.ViewChangeAble.messages.ViewAbleType;
+import huji.message.Message;
 import huji.node.ReplicaNode;
 
-public abstract class ViewChangeAbleNode extends ReplicaNode<PaxosMessage, PaxosValue>  {
+import java.util.Map;
+
+public abstract class ViewChangeAbleNode<T extends Comparable<T>> extends ReplicaNode<T>  {
     private int storage = 0;
     private int view = 0;
     private boolean sent_this_view = false;
 
-    public ViewChangeAbleNode(CommunicationChannel<PaxosMessage, PaxosValue> channel) {
+    public ViewChangeAbleNode(CommunicationChannel<T> channel) {
         super(channel);
     }
 
@@ -20,41 +23,42 @@ public abstract class ViewChangeAbleNode extends ReplicaNode<PaxosMessage, Paxos
     }
 
     @Override
-    protected boolean handle(PaxosMessage msg){
+    protected boolean handle(Message<T> msg){
         if ( super.handle(msg) )
             return true;
 
-        view_change_if_needed(msg);
+        if ( !(msg instanceof ViewAbleMessage) )
+            return false;
+
+        ViewAbleMessage<T> viewable_msg = (ViewAbleMessage<T>)msg;
+        view_change_if_needed(viewable_msg);
         if( ! sent_this_view ) {
             send_view_beginning_message();
             sent_this_view = true;
         }
 
-        if ( to_ignore(msg) )
-            return true;
-
-        switch (msg.type) {
+        switch (viewable_msg.type) {
             case HISTORY_REQ:
-                historyReqMessage(msg);
+                historyReqMessage(viewable_msg);
                 return true;
             case HISTORY:
-                historyMessage(msg);
+                historyMessage(viewable_msg);
                 return true;
         }
 
-        return false;
+        return to_ignore(viewable_msg);
     }
 
-    protected boolean to_ignore(PaxosMessage msg) {
+    protected boolean to_ignore(ViewAbleMessage<T> msg) {
         return (msg.view < this.view) || (msg.storage < this.storage);
     }
 
-    protected void view_change_if_needed(PaxosMessage msg) {
+    protected void view_change_if_needed(ViewAbleMessage<T> msg) {
         if ( msg.view > this.view() )
             view_update(msg.view);
 
         if ( msg.storage > this.storage ) {
-            get_history(this.storage, msg.storage);
+            req_history(this.storage, msg.storage);
             storage_update(msg.storage);
         }
     }
@@ -112,15 +116,32 @@ public abstract class ViewChangeAbleNode extends ReplicaNode<PaxosMessage, Paxos
     /*
      * History
      */
-    protected void get_history(int storage, int storage1) {
+
+    @Override
+    protected Map<Integer, T> get_committed(int start, int end) {
+        return super.get_committed(start, end);
+    }
+
+    protected void req_history(int start, int end) {
+        sendToAll(
+                new ViewAbleMessage<T>(
+                        id,
+                        -1,
+                        null,
+                        view(),
+                        storage(),
+                        ViewAbleType.HISTORY_REQ
+                )
+                        .add_property("start", start)
+                        .add_property("end", end)
+        );
+    }
+
+    protected void historyReqMessage(ViewAbleMessage<T> message) {
         // TODO
     }
 
-    protected void historyReqMessage(PaxosMessage message) {
-        // TODO
-    }
-
-    protected void historyMessage(PaxosMessage message) {
+    protected void historyMessage(ViewAbleMessage<T> message) {
         // TODO
     }
 }

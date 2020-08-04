@@ -1,33 +1,63 @@
 package huji.message;
 
-public abstract class Message<T> extends Delayable {
+import java.util.HashMap;
+import java.util.Map;
+
+public class Message<T> extends Delayable {
     final public int from;
     final public int to;
 
     final public boolean isClient;
 
     final public T body;
+    final public Map<String,Object> properties;
 
-    public Message(int from, int to, T body, boolean isClient ) {
+    public Message(int from, int to, T body, boolean isClient) {
         super();
         this.from = from;
         this.to = to;
+
         this.body = body;
+        this.properties = new HashMap<>();
+
         this.isClient = isClient;
     }
 
     public Message(Message<T> other, int to) {
-        super();
-        this.from = other.from;
-        this.body = other.body;
-        this.isClient = other.isClient;
-        this.to = to;
+        this(
+                other.from,
+                to,
+                other.body,
+                other.isClient
+        );
+        this.properties.putAll(other.properties);
     }
 
-    abstract public Message<T> copy(int to);
+    public Message<T> copy(int to) {
+        return new Message<T>(this,to);
+    }
+
+    public Message<T> add_property(String key, Object value) {
+        this.properties.putIfAbsent(key, value);
+        return this;
+    }
+
+    public Object get_property(String key) {
+        return this.properties.get(key);
+    }
+
+    public String get_string_property(String key) {
+        return (String) this.properties.get(key);
+    }
+
+    public int get_int_property(String key) {
+        return (Integer) this.properties.get(key);
+    }
 
     @Override
     public String toString() {
+        if ( isClient )
+            return "UserMessage{ from:" + from +  ", to:" + to + ", body: " + body.toString() + "}";
         return "Message{ from:" + from +  ", to:" + to + ", body: " + body.toString() + "}";
     }
 }

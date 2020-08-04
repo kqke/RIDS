@@ -3,7 +3,7 @@ package huji.impl.paxos;
 import huji.channel.CommunicationChannel;
 import huji.channel.impl.AsyncChannel;
 import huji.impl.dummyUser.DummyNode;
-import huji.impl.paxos.messages.PaxosMessage;
+import huji.impl.ViewChangeAble.messages.ViewAbleMessage;
 import huji.impl.paxos.messages.PaxosValue;
 import huji.logger.Log;
 import huji.logger.Logger;
@@ -16,7 +16,7 @@ class PaxosTest extends Paxos {
 
     Set<Integer> restrictions = new HashSet<>(N);
 
-    public PaxosTest(CommunicationChannel<PaxosMessage, PaxosValue> channel) {
+    public PaxosTest(CommunicationChannel<ViewAbleMessage, PaxosValue> channel) {
         super(channel, N);
     }
 
@@ -25,7 +25,7 @@ class PaxosTest extends Paxos {
      */
 
     @Override
-    public void send(PaxosMessage message) {
+    public void send(ViewAbleMessage message) {
         if ( message.to == 0 )
             synchronized (System.out) {
                 System.out.println(message);
@@ -47,7 +47,7 @@ class PaxosTest extends Paxos {
      */
 
     @Override
-    protected boolean handle(PaxosMessage msg) {
+    protected boolean handle(ViewAbleMessage msg) {
         logger.add(
                 new Log()
         );
@@ -59,10 +59,10 @@ class PaxosTest extends Paxos {
      */
     public static void main(String[] args) {
         // start channel
-        AsyncChannel<PaxosMessage, PaxosValue> channel = new AsyncChannel<>();
+        AsyncChannel<ViewAbleMessage, PaxosValue> channel = new AsyncChannel<>();
 
         // register users
-        DummyNode<PaxosMessage, PaxosValue> dummy = new DummyNode<>(channel);
+        DummyNode<ViewAbleMessage, PaxosValue> dummy = new DummyNode<>(channel);
         Map<Integer, PaxosTest> replicas = new HashMap<>(N);
         for ( int i = 0; i < N; ++i ) {
             PaxosTest replica = new PaxosTest(channel);

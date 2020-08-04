@@ -2,10 +2,10 @@ package huji.interfaces;
 
 import huji.message.Message;
 
-public interface CommunicationAble<T extends Message<R>, R> {
+public interface CommunicationAble<T> {
     int get_id();
-    void receive(T message);
-    void send(T message);
-    void sendToAll(T message);
-    void sendToAllReplicas(T message);
+    void receive(Message<T> message);
+    void send(Message<T> message);
+    void sendToAll(Message<T> message);
+    void sendToReplicas(Message<T> message);
 }

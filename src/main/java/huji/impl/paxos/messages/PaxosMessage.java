@@ -1,29 +1,25 @@
 package huji.impl.paxos.messages;
 
-import huji.message.Message;
+import huji.impl.ViewChangeAble.messages.ViewAbleMessage;
+import huji.impl.ViewChangeAble.messages.ViewAbleType;
 
-public class PaxosMessage extends Message<PaxosValue> {
-    public final int storage;
-    public final int view;
-    public final PaxosMessageType type;
+public class PaxosMessage extends ViewAbleMessage<PaxosValue> {
+    public final PaxosMessageType ptype;
+
+    public PaxosMessage(int from, int to, PaxosValue body, boolean isClient, int view, int storage, ViewAbleType view_type, PaxosMessageType type) {
+        super(from, to, body, isClient, view, storage, view_type);
+        this.ptype = type;
+    }
+
+    public PaxosMessage(int from, int to, PaxosValue body, boolean isClient, int view, int storage, PaxosMessageType type) {
+        this(from, to, body, isClient, view, storage, ViewAbleType.OTHER, type);
+    }
 
     public PaxosMessage(int from, int to, PaxosValue body, int view, int storage, PaxosMessageType type) {
-        super(from, to, body, false);
-        this.view = view;
-        this.storage = storage;
-        this.type = type;
+        this(from, to, body, false, view, storage, ViewAbleType.OTHER, type);
     }
 
-    public PaxosMessage(PaxosMessage other, int to) {
-        super(other, to);
-        this.view = other.view;
-        this.storage = other.storage;
-        this.type = other.type;
-    }
-
-
-    @Override
-    public Message<PaxosValue> copy(int to) {
-        return new PaxosMessage(this, to);
+    public PaxosMessage(int from, PaxosValue body, int view, int storage, PaxosMessageType type) {
+        this(from, -1, body, false, view, storage, ViewAbleType.OTHER, type);
     }
 }

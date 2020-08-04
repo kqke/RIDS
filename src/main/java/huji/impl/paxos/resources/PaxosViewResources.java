@@ -2,7 +2,6 @@ package huji.impl.paxos.resources;
 
 import huji.impl.paxos.messages.PaxosMessageType;
 import huji.impl.paxos.messages.PaxosValue;
-import javafx.util.Pair;
 
 import java.util.HashMap;
 

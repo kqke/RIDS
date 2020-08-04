@@ -10,7 +10,5 @@ public enum PaxosMessageType {
     VOTE,
     VC_STATE,
     VC_STATE_LOCK,
-    VC_STATE_DONE,
-    HISTORY_REQ,
-    HISTORY
+    VC_STATE_DONE
 }

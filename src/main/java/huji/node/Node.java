@@ -8,13 +8,13 @@ import huji.message.Message;
 import java.util.LinkedList;
 import java.util.Queue;
 
-public abstract class Node<T extends Message<R>, R> extends Process implements CommunicationAble<T, R> {
+public abstract class Node<T> extends Process implements CommunicationAble<T> {
     protected final int id;
-    protected final CommunicationChannel<T, R> channel;
+    protected final CommunicationChannel channel;
 
-    private final Queue<T> messages;
+    private final Queue<Message<T>> messages;
 
-    public Node(CommunicationChannel<T, R> channel) {
+    public Node(CommunicationChannel channel) {
         this.channel = channel;
         this.id = channel.register(this);
         this.messages = new LinkedList<>();
@@ -26,13 +26,13 @@ public abstract class Node<T extends Message<R>, R> extends Process implements C
     }
 
     @Override
-    public void receive(T message) {
+    public void receive(Message<T> message) {
         messages.add(message);
         wakeup();
     }
 
     @Override
-    public void send(T message) {
+    public void send(Message<T> message) {
         if (message.to == id)
             receive(message);
         else
@@ -40,15 +40,15 @@ public abstract class Node<T extends Message<R>, R> extends Process implements C
     }
 
     @Override
-    public void sendToAll(T message) {
+    public void sendToAll(Message<T> message) {
         for (int party : channel.getAll())
-            send((T)message.copy(party));
+            send(message.copy(party));
     }
 
     @Override
-    public void sendToAllReplicas(T message) {
+    public void sendToReplicas(Message<T> message) {
         for (int party : channel.getReplicas())
-            send((T)message.copy(party));
+            send(message.copy(party));
     }
 
     @Override
@@ -61,5 +61,5 @@ public abstract class Node<T extends Message<R>, R> extends Process implements C
         handle(messages.remove());
     }
 
-    protected abstract boolean handle(T msg);
+    protected abstract boolean handle(Message<T> msg);
 }
