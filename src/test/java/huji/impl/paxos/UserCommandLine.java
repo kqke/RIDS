@@ -1,16 +1,18 @@
 package huji.impl.paxos;
 
 import huji.impl.paxos.messages.PaxosMessage;
-import huji.impl.paxos.messages.PaxosValue;
+import huji.interfaces.Factory;
 
 import java.util.Map;
 import java.util.Scanner;
 
-public class UserCommandLine implements Runnable {
-    Map<Integer, PaxosTest> replicas;
+public class UserCommandLine<T extends Comparable<T>> implements Runnable {
+    Map<Integer, PaxosTest<T>> replicas;
+    final Factory<T,String> factory;
 
-    public UserCommandLine( Map<Integer, PaxosTest> replicas ) {
+    public UserCommandLine(Map<Integer, PaxosTest<T>> replicas, Factory<T,String> factory) {
         this.replicas = replicas;
+        this.factory = factory;
     }
 
     @Override
@@ -65,10 +67,10 @@ public class UserCommandLine implements Runnable {
 
     private void cmd_user(int replica, String str) {
         replicas.get(replica).receive(
-                new PaxosMessage(
+                new PaxosMessage<>(
                         0,
                         replica,
-                        new PaxosValue(str),
+                        factory.get(str),
                         true,
                         -1,
                         -1,
@@ -81,8 +83,8 @@ public class UserCommandLine implements Runnable {
      * History
      */
 
-    private void cmd_history(int replica, int start_view) {
-        replicas.get(replica).get_committed(start_view).forEach(
+    private void cmd_history(int replica, int start_storage) {
+        replicas.get(replica).get_committed(start_storage).forEach(
                 (storage,value) -> System.out.println("storage: " + storage + ", value: " + value)
         );
     }

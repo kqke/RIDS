@@ -1,14 +1,16 @@
 package huji.impl.dummyUser;
 
 import huji.channel.CommunicationChannel;
-import huji.impl.paxos.messages.PaxosValue;
+import huji.interfaces.Factory;
 import huji.message.Message;
 import huji.node.Node;
 
-public class DummyNode extends Node<PaxosValue> {
+public class DummyNode<T> extends Node<T> {
+    final Factory<T,String> factory;
 
-    public DummyNode(CommunicationChannel<PaxosValue> channel) {
+    public DummyNode(CommunicationChannel<T> channel, Factory<T,String> factory) {
         super(channel);
+        this.factory = factory;
     }
 
     @Override
@@ -23,7 +25,7 @@ public class DummyNode extends Node<PaxosValue> {
     }
 
     @Override
-    protected boolean handle(Message<PaxosValue> msg) {
+    protected boolean handle(Message<T> msg) {
         return false;
     }
 }

@@ -64,8 +64,15 @@ public class Message<T> extends Delayable {
 
     @Override
     public String toString() {
-        if ( isClient )
-            return "UserMessage{ from:" + from +  ", to:" + to + ", body: " + body.toString() + "}";
-        return "Message{ from:" + from +  ", to:" + to + ", body: " + body.toString() + "}";
+        return ((isClient) ? "UserMessage" : "Message")
+                + "{ "
+                + ("from: " + from)
+                + ", "
+                + ("to: " + to)
+                + ", "
+                + ("body: " + ((body != null) ? body.toString() : "null"))
+                + ", "
+                + ("properties: " + ((properties.size() > 0) ? properties.toString() : "null"))
+                + " }";
     }
 }

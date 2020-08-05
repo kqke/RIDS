@@ -13,9 +13,11 @@ public class Logger {
 
     public void add(Log log){
         logs.add(log);
+
         if (to_print) {
             synchronized (System.out) {
-                System.out.println(log);
+                if (to_print)
+                    System.out.println(log);
             }
         }
     }
@@ -33,6 +35,4 @@ public class Logger {
 
         return logs.iterator();
     }
-
-
 }

@@ -4,8 +4,6 @@ import huji.impl.ViewChangeAble.messages.ViewAbleMessage;
 import huji.impl.ViewChangeAble.messages.ViewAbleType;
 import huji.impl.paxos.resources.PaxosVCState;
 
-import java.util.Map;
-
 public class PaxosMessage<T extends Comparable<T>> extends ViewAbleMessage<T> {
     public final PaxosMessageType ptype;
 
@@ -43,5 +41,10 @@ public class PaxosMessage<T extends Comparable<T>> extends ViewAbleMessage<T> {
 
     public PaxosVCState get_state_property(String key) {
         return (PaxosVCState) this.properties.get(key);
+    }
+
+    @Override
+    public String toString() {
+        return super.toString() + ", ptype=" + ptype.toString();
     }
 }

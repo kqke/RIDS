@@ -40,4 +40,16 @@ public class ViewAbleMessage<T extends Comparable<T>> extends Message<T> {
         super.add_property(key, value);
         return this;
     }
+
+    @Override
+    public String toString() {
+        return super.toString()
+                + " "
+                + ("view=" + view)
+                + ", "
+                + ("storage=" + storage)
+                + ", "
+                + ("type=" + type.toString())
+                ;
+    }
 }

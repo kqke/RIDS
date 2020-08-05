@@ -3,7 +3,7 @@ package huji.impl.paxos;
 import huji.channel.CommunicationChannel;
 import huji.channel.impl.AsyncChannel;
 import huji.impl.dummyUser.DummyNode;
-import huji.impl.paxos.messages.PaxosValue;
+import huji.impl.dummyUser.DummyValue;
 import huji.interfaces.SecretShare;
 import huji.logger.Log;
 import huji.logger.Logger;
@@ -12,14 +12,14 @@ import huji.secretShare.ShamirSecretShare;
 
 import java.util.*;
 
-class PaxosTest extends Paxos {
+class PaxosTest<T extends Comparable<T>> extends Paxos<T> {
     public static final int N = 6;
     public static final Logger logger = new Logger();
     public static final SecretShare secret_share = new ShamirSecretShare(N, N/2);
 
     Set<Integer> restrictions = new HashSet<>(N);
 
-    public PaxosTest(CommunicationChannel<PaxosValue> channel) {
+    public PaxosTest(CommunicationChannel<T> channel) {
         super(channel, N, secret_share);
     }
 
@@ -28,7 +28,7 @@ class PaxosTest extends Paxos {
      */
 
     @Override
-    public void send(Message<PaxosValue> message) {
+    public void send(Message<T> message) {
         if ( message.to == 0 )
             synchronized (System.out) {
                 System.out.println(message);
@@ -50,9 +50,9 @@ class PaxosTest extends Paxos {
      */
 
     @Override
-    protected boolean handle(Message<PaxosValue> msg) {
+    protected boolean handle(Message<T> msg) {
         logger.add(
-                new Log()
+                new Log(msg.toString())
         );
         return super.handle(msg);
     }
@@ -62,13 +62,13 @@ class PaxosTest extends Paxos {
      */
     public static void main(String[] args) {
         // start channel
-        AsyncChannel<PaxosValue> channel = new AsyncChannel<>();
+        AsyncChannel<DummyValue> channel = new AsyncChannel<>();
 
         // register users
-        DummyNode dummy = new DummyNode(channel);
-        Map<Integer, PaxosTest> replicas = new HashMap<>(N);
+        DummyNode<DummyValue> dummy = new DummyNode<>(channel, DummyValue::new);
+        Map<Integer, PaxosTest<DummyValue>> replicas = new HashMap<>(N);
         for ( int i = 0; i < N; ++i ) {
-            PaxosTest replica = new PaxosTest(channel);
+            PaxosTest<DummyValue> replica = new PaxosTest<>(channel);
             replicas.put(replica.id, replica);
         }
 
@@ -76,11 +76,11 @@ class PaxosTest extends Paxos {
         channel.start();
         dummy.start();
         replicas.values().forEach(Thread::start);
-        new UserCommandLine(replicas).run();
+        new UserCommandLine<>(replicas, DummyValue::new).run();
 
         // shutdown
         dummy.shutdown();
-        for ( PaxosTest replica : replicas.values() )
+        for ( PaxosTest<DummyValue> replica : replicas.values() )
             replica.shutdown();
         channel.shutdown();
 
