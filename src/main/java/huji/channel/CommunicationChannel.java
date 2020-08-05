@@ -1,6 +1,5 @@
 package huji.channel;
 
-import huji.interfaces.CommunicationAble;
 import huji.message.Message;
 
 import java.io.Closeable;

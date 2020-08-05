@@ -1,7 +1,7 @@
 package huji.node;
 
+import huji.channel.CommunicationAble;
 import huji.channel.CommunicationChannel;
-import huji.interfaces.CommunicationAble;
 import huji.interfaces.Process;
 import huji.message.Message;
 

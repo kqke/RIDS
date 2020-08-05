@@ -8,7 +8,7 @@ import huji.interfaces.SecretShare;
 import huji.logger.Log;
 import huji.logger.Logger;
 import huji.message.Message;
-import huji.secretShare.ShamirSecretShare;
+import huji.interfaces.impl.ShamirSecretShare;
 
 import java.util.*;
 

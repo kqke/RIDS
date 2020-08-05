@@ -1,4 +1,4 @@
-package huji.interfaces;
+package huji.channel;
 
 import huji.message.Message;
 

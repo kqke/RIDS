@@ -6,7 +6,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.IntStream;
 
 import huji.channel.CommunicationChannel;
-import huji.interfaces.CommunicationAble;
+import huji.channel.CommunicationAble;
 import huji.message.Message;
 import huji.interfaces.Process;
 
