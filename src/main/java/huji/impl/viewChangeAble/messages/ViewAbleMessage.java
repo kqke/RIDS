@@ -1,4 +1,4 @@
-package huji.impl.ViewChangeAble.messages;
+package huji.impl.viewChangeAble.messages;
 
 import huji.message.Message;
 

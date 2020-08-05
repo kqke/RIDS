@@ -1,4 +1,4 @@
-package huji.impl.dummyUser;
+package huji.impl.dummy;
 
 import huji.channel.CommunicationChannel;
 import huji.interfaces.Factory;

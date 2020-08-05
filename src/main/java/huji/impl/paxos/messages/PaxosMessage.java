@@ -1,7 +1,7 @@
 package huji.impl.paxos.messages;
 
-import huji.impl.ViewChangeAble.messages.ViewAbleMessage;
-import huji.impl.ViewChangeAble.messages.ViewAbleType;
+import huji.impl.viewChangeAble.messages.ViewAbleMessage;
+import huji.impl.viewChangeAble.messages.ViewAbleType;
 import huji.impl.paxos.resources.PaxosVCState;
 
 public class PaxosMessage<T extends Comparable<T>> extends ViewAbleMessage<T> {

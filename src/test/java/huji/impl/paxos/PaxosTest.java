@@ -2,8 +2,8 @@ package huji.impl.paxos;
 
 import huji.channel.CommunicationChannel;
 import huji.channel.impl.AsyncChannel;
-import huji.impl.dummyUser.DummyNode;
-import huji.impl.dummyUser.DummyValue;
+import huji.impl.dummy.DummyNode;
+import huji.impl.dummy.DummyValue;
 import huji.interfaces.SecretShare;
 import huji.logger.Log;
 import huji.logger.Logger;

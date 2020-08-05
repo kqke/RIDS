@@ -1,7 +1,7 @@
 package huji.impl.paxos;
 
 import huji.channel.CommunicationChannel;
-import huji.impl.ViewChangeAble.ViewChangeAbleNode;
+import huji.impl.viewChangeAble.ViewChangeAbleNode;
 import huji.impl.paxos.messages.PaxosMessage;
 import huji.impl.paxos.messages.PaxosMessageType;
 import huji.impl.paxos.resources.PaxosViewResources;

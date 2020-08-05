@@ -1,8 +1,8 @@
-package huji.impl.ViewChangeAble;
+package huji.impl.viewChangeAble;
 
 import huji.channel.CommunicationChannel;
-import huji.impl.ViewChangeAble.messages.ViewAbleMessage;
-import huji.impl.ViewChangeAble.messages.ViewAbleType;
+import huji.impl.viewChangeAble.messages.ViewAbleMessage;
+import huji.impl.viewChangeAble.messages.ViewAbleType;
 import huji.message.Message;
 import huji.node.ReplicaNode;
 

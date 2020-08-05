@@ -1,4 +1,4 @@
-package huji.impl.dummyUser;
+package huji.impl.dummy;
 
 public class DummyValue implements Comparable<DummyValue> {
     public final String value;
