@@ -6,30 +6,26 @@ import java.util.Map;
 public class PairMap<L,R> {
     Map<Integer,Pair<L, R>> map = new HashMap<>();
 
-    public Pair<L, R> put(int key, L lvalue, R rvalue) {
-        return map.put(key, new Pair<>(lvalue,rvalue));
+    public void put(int key, L lvalue, R rvalue) {
+        map.put(key, new Pair<>(lvalue,rvalue));
+    }
+
+    public L getLvalueOrDefault(int key, L lvalue) {
+        Pair<L, R> pair;
+        return (pair = map.get(key)) != null ? pair.left : lvalue;
     }
 
     public L getLvalue(int key) {
+        return getLvalueOrDefault(key, null);
+    }
+
+    public R getRvalueOrDefault(int key, R rvalue) {
         Pair<L, R> pair;
-        return (pair = map.get(key)) != null ? pair.left : null;
+        return (pair = map.get(key)) != null ? pair.right : rvalue;
     }
 
     public R getRvalue(int key) {
-        Pair<L, R> pair;
-        return (pair = map.get(key)) != null ? pair.right : null;
-    }
-
-    public L setLvalue(int key, L lvalue) throws IndexOutOfBoundsException {
-        if ( ! map.containsKey(key) )
-            throw new IndexOutOfBoundsException();
-        return put(key, lvalue, map.get(key).right).left;
-    }
-
-    public R setRvalue(int key, R rvalue) throws IndexOutOfBoundsException {
-        if ( ! map.containsKey(key) )
-            throw new IndexOutOfBoundsException();
-        return put(key, map.get(key).left, rvalue).right;
+        return getRvalueOrDefault(key, null);
     }
 
     public void remove(int key, L lvalue, R rvalue) {

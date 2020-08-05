@@ -29,15 +29,15 @@ public abstract class Process extends Thread implements Closeable {
     @Override
     public void run() {
         while( is_run )
-            if ( running_condition() )
-                running_process();
+            if ( runningCondition() )
+                runningProcess();
             else
-                while ( is_run && ! running_condition() )
+                while ( is_run && ! runningCondition() )
                     try {
                         wait();
                     } catch (Exception ignored) {}
     }
 
-    abstract protected boolean running_condition();
-    abstract protected void running_process();
+    abstract protected boolean runningCondition();
+    abstract protected void runningProcess();
 }

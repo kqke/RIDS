@@ -32,17 +32,17 @@ public class AsyncChannel<T extends Comparable<T>> extends Process implements Co
         return id;
     }
 
-    public void register_replica(CommunicationAble<T> party){
-        replicas.add(party.get_id());
+    public void registerReplica(CommunicationAble<T> party){
+        replicas.add(party.getID());
     }
 
     @Override
-    protected boolean running_condition() {
+    protected boolean runningCondition() {
         return !communication_queue.isEmpty();
     }
 
     @Override
-    protected void running_process() {
+    protected void runningProcess() {
         try {
             Message<T> msg = communication_queue.take();
             parties.get(msg.to).receive(msg);

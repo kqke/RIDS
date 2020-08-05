@@ -14,12 +14,12 @@ public class DummyNode<T> extends Node<T> {
     }
 
     @Override
-    protected boolean running_condition() {
+    protected boolean runningCondition() {
         return true;
     }
 
     @Override
-    protected void running_process() {
+    protected void runningProcess() {
         // TODO: send to all
         shutdown();
     }

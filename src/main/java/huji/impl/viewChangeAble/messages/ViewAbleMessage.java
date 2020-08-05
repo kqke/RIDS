@@ -36,8 +36,8 @@ public class ViewAbleMessage<T extends Comparable<T>> extends Message<T> {
     }
 
     @Override
-    public ViewAbleMessage<T> add_property(String key, Object value) {
-        super.add_property(key, value);
+    public ViewAbleMessage<T> addProperty(String key, Object value) {
+        super.addProperty(key, value);
         return this;
     }
 

@@ -13,7 +13,7 @@ public abstract class ReplicaNode<T extends Comparable<T>> extends Node<T> {
 
     public ReplicaNode(CommunicationChannel<T> channel){
         super(channel);
-        channel.register_replica(this);
+        channel.registerReplica(this);
         this.client_messages = new ConcurrentLinkedQueue<>();
         this.committed = new TreeMap<>();
     }
@@ -30,7 +30,7 @@ public abstract class ReplicaNode<T extends Comparable<T>> extends Node<T> {
         }
     }
 
-    public Map<Integer,T> get_committed(int start, int end) {
+    public Map<Integer,T> getCommitted(int start, int end) {
         Map<Integer,T> output = new HashMap<>(end - start);
         for ( Map.Entry<Integer,T> entry : committed.entrySet() ) {
             if ( start <= entry.getKey() && ( entry.getKey() < end || end == -1) )
@@ -40,17 +40,17 @@ public abstract class ReplicaNode<T extends Comparable<T>> extends Node<T> {
         return output;
     }
 
-    public Map<Integer,T> get_committed(int start) {
-        return get_committed(start, -1);
+    public Map<Integer,T> getCommitted(int start) {
+        return getCommitted(start, -1);
     }
 
-    protected T peek_client_message() {
+    protected T peekClientMessage() {
         return client_messages.peek();
     }
 
     @Override
-    protected boolean running_condition() {
-        return super.running_condition() || !client_messages.isEmpty();
+    protected boolean runningCondition() {
+        return super.runningCondition() || !client_messages.isEmpty();
     }
 
     protected boolean handle(Message<T> msg) {

@@ -1,112 +1,113 @@
 package huji.impl.paxos.resources;
 
-import huji.interfaces.Pair;
+import huji.interfaces.PairMap;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import static huji.impl.paxos.resources.PaxosVCState.*;
 
 public class PaxosViewResources<T extends Comparable<T>> {
-
-    // Protocol parameters
     private final int N;
     private final int F;
 
-    // Values table
-    private final HashMap<Integer, Pair<T, PaxosVCState>> offer_values;
-
-    // Shares table
-    private final HashMap<Integer, Integer> shares;
-
-    // Temp lock
-    T temp_lock_val = null;
-    int temp_lock_view = -1;
-
-    // VC state
-    private PaxosVCState vc_state;
-
-    public PaxosViewResources(int n, int f){
-        N = n;
-        F = f;
-        reset_counters();
-        offer_values = new HashMap<>();
-        shares = new HashMap<>();
-
-        vc_state = NONE;
+    public PaxosViewResources(int N, int F){
+        this.N = N;
+        this.F = F;
+        resetCounters();
     }
 
     /* Ack offer */
 
-    public void put_locked_ack(T value, int view) {
+    T temp_lock_val = null;
+    int temp_lock_view = -1;
+
+    public void putLockedAck(T value, int view) {
         if ( view > temp_lock_view ) {
             temp_lock_val = value;
             temp_lock_view = view;
         }
     }
-    public boolean exists_locked_ack(){ return temp_lock_view != -1; }
+    public boolean isExistsLockedAck(){ return temp_lock_view != -1; }
     public T getLock(){ return temp_lock_val; }
     public int getLockView(){ return temp_lock_view; }
 
     /* Even */
-    public void lock(int from, T val){
-        offer_values.put(from, new Pair<>(val, LOCK));
+
+    private final PairMap<T, PaxosVCState> offer_values = new PairMap<>();
+
+    public void lock(int from, T val) {
+        offer_values.put(from, val, LOCK);
     }
 
-    public void done(int from, T val){
-        offer_values.put(from, new Pair<>(val, DONE));
+    public void done(int from, T val) {
+        offer_values.put(from, val, DONE);
+    }
+
+    public T getPartyValue(int i) {
+        return offer_values.getLvalue(i);
+    }
+
+    public PaxosVCState getPartyState(int i) {
+        return offer_values.getRvalueOrDefault(i, NONE);
     }
 
     /* Secret share */
-    public void put_secret(int from, int val){
+
+    private final Map<Integer, Integer> shares = new HashMap<>();
+
+    public void putSecret(int from, int val) {
         shares.put(from, val);
     }
 
-    public HashMap<Integer, Integer> getShares() {
+    public Map<Integer, Integer> getShares() {
         return shares;
     }
 
     /* VC */
 
-    public void putVCState(PaxosVCState type, T val, int leader){
-        if ( val != null )
-            temp_lock_val = val;
+    private T leader_value = null;
 
-        if ( vc_state == DONE )
-            return;
+    private boolean exists_done = false;
+    private boolean exists_lock = false;
+    private boolean all_lock = true;
+
+    public void putVCState(PaxosVCState type, T val) {
+        if ( val != null )
+            leader_value = val;
 
         switch(type) {
             case DONE:
-                vc_state = DONE;
+                exists_done = true;
                 break;
             case LOCK:
-                if ( countdown_VCStateLock() )
-                    vc_state = DONE;
-                else
-                    vc_state = LOCK;
+                exists_lock = true;
                 break;
+            default:
+                all_lock = false;
         }
     }
 
-    public PaxosVCState VCState(){
-        return vc_state;
+    public boolean isExistsDone() {
+        return exists_done;
     }
 
-    public T getPartyVal(int i){
-        Pair<T, PaxosVCState> pair = offer_values.get(i);
-        if ( pair != null )
-            return pair.left;
-        return null;
+    public boolean isExistsLock() {
+        return exists_lock;
     }
 
-    public PaxosVCState getPartyState(int i){
-        Pair<T, PaxosVCState> pair = offer_values.get(i);
-        if ( pair != null )
-            return pair.right;
-        return NONE;
+    public boolean isAllLock() {
+        return exists_lock && all_lock;
+    }
+
+    public T getVCValue(int leader) {
+        if ( leader_value != null )
+            return leader_value;
+        return getPartyValue(leader);
     }
 
     /*
-     * counters
+     * Counters
      */
 
     private int ack_offer_counter;
@@ -114,21 +115,18 @@ public class PaxosViewResources<T extends Comparable<T>> {
     private int done_counter;
     private int vote_counter;
     private int vc_state_counter;
-    private int vc_state_lock_counter;
 
-    private void reset_counters(){
+    private void resetCounters() {
         ack_offer_counter = N - F;
         ack_lock_counter = N - F;
         done_counter = N - F;
         vote_counter = N - F;
         vc_state_counter = N - F;
-        vc_state_lock_counter = N - F;
     }
 
-    public boolean countdown_AckOffer() { return 0 == --ack_offer_counter; }
-    public boolean countdown_AckLock() { return 0 == --ack_lock_counter; }
-    public boolean countdown_Done() { return 0 == --done_counter; }
-    public boolean countdown_Vote() { return 0 == --vote_counter; }
-    public boolean countdown_VCState() { return 0 == --vc_state_counter; }
-    public boolean countdown_VCStateLock() { return 0 == --vc_state_lock_counter; }
+    public boolean countdownAckOffer() { return 0 == --ack_offer_counter; }
+    public boolean countdownAckLock() { return 0 == --ack_lock_counter; }
+    public boolean countdownDone() { return 0 == --done_counter; }
+    public boolean countdownVote() { return 0 == --vote_counter; }
+    public boolean countdownVCState() { return 0 == --vc_state_counter; }
 }

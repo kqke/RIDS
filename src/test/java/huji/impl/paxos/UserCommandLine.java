@@ -33,28 +33,28 @@ public class UserCommandLine<T extends Comparable<T>> implements Runnable {
         String[] splitStr = str.split("\\s+");
         switch(splitStr[0]) {
             case "listen":
-                cmd_listen();
+                cmdListen();
                 break;
             case "block":
-                cmd_block(Integer.parseInt(splitStr[1]), Integer.parseInt(splitStr[2]));
+                cmdBlock(Integer.parseInt(splitStr[1]), Integer.parseInt(splitStr[2]));
                 break;
             case "block_all":
                 cmd_block_all(Integer.parseInt(splitStr[1]));
                 break;
             case "unblock":
-                cmd_unblock(Integer.parseInt(splitStr[1]), Integer.parseInt(splitStr[2]));
+                cmdUnblock(Integer.parseInt(splitStr[1]), Integer.parseInt(splitStr[2]));
                 break;
             case "unblock_all":
-                cmd_unblock_all(Integer.parseInt(splitStr[1]));
+                cmdUnblockAll(Integer.parseInt(splitStr[1]));
                 break;
             case "crash":
-                cmd_crash(Integer.parseInt(splitStr[1]));
+                cmdCrash(Integer.parseInt(splitStr[1]));
                 break;
             case "history":
-                cmd_history(Integer.parseInt(splitStr[1]), Integer.parseInt(splitStr[2]));
+                cmdHistory(Integer.parseInt(splitStr[1]), Integer.parseInt(splitStr[2]));
                 break;
             case "user":
-                cmd_user(Integer.parseInt(splitStr[1]), splitStr[2]);
+                cmdUser(Integer.parseInt(splitStr[1]), splitStr[2]);
                 break;
             default:
                 System.out.println(str);
@@ -65,7 +65,7 @@ public class UserCommandLine<T extends Comparable<T>> implements Runnable {
      * User message
      */
 
-    private void cmd_user(int replica, String str) {
+    private void cmdUser(int replica, String str) {
         replicas.get(replica).receive(
                 new PaxosMessage<>(
                         0,
@@ -83,8 +83,8 @@ public class UserCommandLine<T extends Comparable<T>> implements Runnable {
      * History
      */
 
-    private void cmd_history(int replica, int start_storage) {
-        replicas.get(replica).get_committed(start_storage).forEach(
+    private void cmdHistory(int replica, int start_storage) {
+        replicas.get(replica).getCommitted(start_storage).forEach(
                 (storage,value) -> System.out.println("storage: " + storage + ", value: " + value)
         );
     }
@@ -93,7 +93,7 @@ public class UserCommandLine<T extends Comparable<T>> implements Runnable {
      * Crash
      */
 
-    private void cmd_crash(int replica) {
+    private void cmdCrash(int replica) {
         replicas.get(replica).shutdown();
     }
 
@@ -101,37 +101,37 @@ public class UserCommandLine<T extends Comparable<T>> implements Runnable {
      * Omission
      */
 
-    private void cmd_block(int replica, int to_unblock) {
+    private void cmdBlock(int replica, int to_unblock) {
         replicas.get(replica).unblock(to_unblock);
     }
 
     private void cmd_block_all(int replica) {
         for ( int id : replicas.keySet() )
-            cmd_block(replica, id);
+            cmdBlock(replica, id);
     }
 
-    private void cmd_unblock(int replica, int to_block) {
+    private void cmdUnblock(int replica, int to_block) {
         replicas.get(replica).block(to_block);
     }
 
-    private void cmd_unblock_all(int replica) {
+    private void cmdUnblockAll(int replica) {
         for ( int id : replicas.keySet() )
-            cmd_unblock(replica, id);
+            cmdUnblock(replica, id);
     }
 
     /*
      * Listen
      */
 
-    private void cmd_listen() {
+    private void cmdListen() {
         PaxosTest.logger.to_print = true;
-        wait_until_press();
+        waitUntilPress();
         synchronized (System.out) {
             PaxosTest.logger.to_print = false;
         }
     }
 
-    private void wait_until_press() {
+    private void waitUntilPress() {
         int press = -1;
         while ( press < 0 ) {
             try {

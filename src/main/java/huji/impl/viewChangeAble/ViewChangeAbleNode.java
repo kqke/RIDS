@@ -18,8 +18,8 @@ public abstract class ViewChangeAbleNode<T extends Comparable<T>> extends Replic
     }
 
     @Override
-    protected boolean running_condition() {
-        return super.running_condition() || !sent_this_view;
+    protected boolean runningCondition() {
+        return super.runningCondition() || !sent_this_view;
     }
 
     @Override
@@ -31,9 +31,9 @@ public abstract class ViewChangeAbleNode<T extends Comparable<T>> extends Replic
             return false;
 
         ViewAbleMessage<T> viewable_msg = (ViewAbleMessage<T>)msg;
-        view_change_if_needed(viewable_msg);
+        viewChangeIfNeeded(viewable_msg);
         if( ! sent_this_view ) {
-            send_view_beginning_message();
+            sendViewBeginningMessage();
             sent_this_view = true;
         }
 
@@ -46,29 +46,29 @@ public abstract class ViewChangeAbleNode<T extends Comparable<T>> extends Replic
                 return true;
         }
 
-        return to_ignore(viewable_msg);
+        return toIgnore(viewable_msg);
     }
 
-    protected boolean to_ignore(ViewAbleMessage<T> msg) {
+    protected boolean toIgnore(ViewAbleMessage<T> msg) {
         return (msg.view < this.view) || (msg.storage < this.storage);
     }
 
-    protected void view_change_if_needed(ViewAbleMessage<T> msg) {
+    protected void viewChangeIfNeeded(ViewAbleMessage<T> msg) {
         if ( msg.view > this.view() )
-            view_update(msg.view);
+            viewUpdate(msg.view);
 
         if ( msg.storage > this.storage ) {
-            req_history(this.storage, msg.storage);
-            storage_update(msg.storage);
+            reqHistory(this.storage, msg.storage);
+            storageUpdate(msg.storage);
         }
     }
 
-    private void view_changed() {
+    private void viewChanged() {
         sent_this_view = false;
-        on_view_change();
+        onViewChange();
     }
 
-    protected void on_view_change(){}
+    protected void onViewChange(){}
 
     /*
      * Storage able
@@ -77,52 +77,52 @@ public abstract class ViewChangeAbleNode<T extends Comparable<T>> extends Replic
         return storage;
     }
 
-    private void storage_update() {
+    private void storageUpdate() {
         ++this.storage;
-        view_changed();
-        on_storage_update();
+        viewChanged();
+        onStorageUpdate();
     }
 
-    private void storage_update(int storage) {
+    private void storageUpdate(int storage) {
         this.storage = storage;
-        view_changed();
-        on_storage_update();
+        viewChanged();
+        onStorageUpdate();
     }
 
     protected void commit(T value) {
         super.commit(storage(), value);
-        storage_update();
+        storageUpdate();
     }
 
-    protected void on_storage_update(){}
+    protected void onStorageUpdate(){}
 
     /*
      * View Change able
      */
-    protected void view_update(){
+    protected void viewUpdate(){
         ++this.view;
-        view_changed();
-        on_view_update( this.view, view );
+        viewChanged();
+        onViewUpdate( this.view, view );
     }
 
-    protected void view_update(int view){
+    protected void viewUpdate(int view){
         this.view = view;
-        view_changed();
-        on_view_update( this.view, view );
+        viewChanged();
+        onViewUpdate( this.view, view );
     }
 
     protected int view() {
         return view;
     }
 
-    protected void on_view_update( int old_view, int view ){}
-    protected abstract void send_view_beginning_message();
+    protected void onViewUpdate(int old_view, int view ){}
+    protected abstract void sendViewBeginningMessage();
 
     /*
      * History
      */
 
-    protected void req_history(int start, int end) {
+    protected void reqHistory(int start, int end) {
         sendToReplicas(
                 new ViewAbleMessage<T>(
                         id,
@@ -132,15 +132,15 @@ public abstract class ViewChangeAbleNode<T extends Comparable<T>> extends Replic
                         storage(),
                         ViewAbleType.HISTORY_REQ
                 )
-                        .add_property("start", start)
-                        .add_property("end", end)
+                        .addProperty("start", start)
+                        .addProperty("end", end)
         );
     }
 
     protected void historyReqMessage(ViewAbleMessage<T> message) {
-        Map<Integer,T> history = get_committed(
-                message.get_int_property("start"),
-                message.get_int_property("end")
+        Map<Integer,T> history = getCommitted(
+                message.getIntProperty("start"),
+                message.getIntProperty("end")
         );
 
         send(
@@ -152,13 +152,13 @@ public abstract class ViewChangeAbleNode<T extends Comparable<T>> extends Replic
                         storage(),
                         ViewAbleType.HISTORY
                 )
-                        .add_property("history", history)
+                        .addProperty("history", history)
         );
     }
 
     protected void historyMessage(ViewAbleMessage<T> message) {
         commit(
-                message.get_map_property("history")
+                message.getMapProperty("history")
         );
     }
 }

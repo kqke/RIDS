@@ -21,7 +21,7 @@ public abstract class Node<T> extends Process implements CommunicationAble<T> {
     }
 
     @Override
-    public int get_id() {
+    public int getID() {
         return id;
     }
 
@@ -52,12 +52,12 @@ public abstract class Node<T> extends Process implements CommunicationAble<T> {
     }
 
     @Override
-    protected boolean running_condition() {
+    protected boolean runningCondition() {
         return !messages.isEmpty();
     }
 
     @Override
-    protected void running_process() {
+    protected void runningProcess() {
         handle(messages.remove());
     }
 

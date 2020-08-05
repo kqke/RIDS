@@ -34,12 +34,12 @@ public class PaxosMessage<T extends Comparable<T>> extends ViewAbleMessage<T> {
     }
 
     @Override
-    public PaxosMessage<T> add_property(String key, Object value) {
-        super.add_property(key, value);
+    public PaxosMessage<T> addProperty(String key, Object value) {
+        super.addProperty(key, value);
         return this;
     }
 
-    public PaxosVCState get_state_property(String key) {
+    public PaxosVCState getStateProperty(String key) {
         return (PaxosVCState) this.properties.get(key);
     }
 

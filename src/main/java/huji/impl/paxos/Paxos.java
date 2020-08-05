@@ -15,53 +15,53 @@ public class Paxos<T extends Comparable<T>> extends ViewChangeAbleNode<T> {
     private final int F;
 
     //Secret share
-    private final SecretShare secretShare;
+    private final SecretShare secretshare;
 
     // View resources
     private boolean is_locked = false;
     private T value = null;
     private Integer value_view = 0;
-    private PaxosViewResources<T> viewResources;
+    private PaxosViewResources<T> resources;
 
     // Leader
-    private int L;
+    private int leader;
 
-    public Paxos(CommunicationChannel<T> channel, int N, SecretShare secretShare) {
+    public Paxos(CommunicationChannel<T> channel, int N, SecretShare secretshare) {
         super(channel);
         this.N = N;
         this.F = N / 2;
-        this.secretShare = secretShare;
-        this.viewResources = new PaxosViewResources<>(N, F);
+        this.secretshare = secretshare;
+        this.resources = new PaxosViewResources<>(N, F);
     }
 
     /*
      * On fresh view
      */
     @Override
-    protected void on_view_update( int old_view, int view ) {
-        if ( is_even_view( old_view ) || (view - old_view) > 1 ) {
-            viewResources = new PaxosViewResources<>(N, F);
+    protected void onViewUpdate(int old_view, int view ) {
+        if ( isEvenView( old_view ) || (view - old_view) > 1 ) {
+            resources = new PaxosViewResources<>(N, F);
         }
     }
 
-    private boolean is_even_view( int view ) {
+    private boolean isEvenView(int view ) {
         return (view % 2) == 0;
     }
 
     @Override
-    protected void send_view_beginning_message() {
+    protected void sendViewBeginningMessage() {
 
         /* Offer */
-        if ( is_even_view( view() ) ) {
+        if ( isEvenView( view() ) ) {
 
             if ( ! is_locked ) {
-                value = peek_client_message();
+                value = peekClientMessage();
                 value_view = view();
             }
 
             sendToReplicas(
                     msgToReplicas(value, PaxosMessageType.OFFER)
-                            .add_property("offer_view", value_view)
+                            .addProperty("offer_view", value_view)
             );
         }
 
@@ -69,7 +69,7 @@ public class Paxos<T extends Comparable<T>> extends ViewChangeAbleNode<T> {
         else
             sendToReplicas(
                     msgToReplicas(null, PaxosMessageType.VOTE)
-                            .add_property("share", secretShare.encode(view(), id))
+                            .addProperty("share", secretshare.encode(view(), id))
             );
     }
 
@@ -77,8 +77,8 @@ public class Paxos<T extends Comparable<T>> extends ViewChangeAbleNode<T> {
      * Locked value
      */
     @Override
-    protected void on_storage_update() {
-        this.viewResources = new PaxosViewResources<>(N, F);
+    protected void onStorageUpdate() {
+        this.resources = new PaxosViewResources<>(N, F);
         unlock();
     }
 
@@ -107,25 +107,25 @@ public class Paxos<T extends Comparable<T>> extends ViewChangeAbleNode<T> {
 
         switch(paxos_msg.ptype){
             case OFFER:
-                handle_offer_message(paxos_msg);
+                handleOfferMessage(paxos_msg);
                 break;
             case ACK_OFFER:
-                handle_ackOffer_message(paxos_msg);
+                handleAckOfferMessage(paxos_msg);
                 break;
             case LOCK:
-                handle_lock_message(paxos_msg);
+                handleLockMessage(paxos_msg);
                 break;
             case ACK_LOCK:
-                handle_ackLock_message();
+                handleAckLockMessage();
                 break;
             case DONE:
-                handle_done_message(paxos_msg);
+                handleDoneMessage(paxos_msg);
                 break;
             case VOTE:
-                handle_vote_message(paxos_msg);
+                handleVoteMessage(paxos_msg);
                 break;
             case VC:
-                handle_vc_message(paxos_msg);
+                handleVcMessage(paxos_msg);
                 break;
             default:
                 return false;
@@ -134,28 +134,28 @@ public class Paxos<T extends Comparable<T>> extends ViewChangeAbleNode<T> {
         return true;
     }
 
-    private void handle_offer_message(PaxosMessage<T> message) {
-        if ( is_locked && value_view > message.get_int_property("offer_view") )
+    private void handleOfferMessage(PaxosMessage<T> message) {
+        if ( is_locked && value_view > message.getIntProperty("offer_view") )
             send(
                     msgToOne(message.from, value, PaxosMessageType.ACK_OFFER)
-                            .add_property("offer_view", value_view)
-                            .add_property("locked", true)
+                            .addProperty("offer_view", value_view)
+                            .addProperty("locked", true)
             );
         else
             send(
                     msgToOne(message.from, message.body, PaxosMessageType.ACK_OFFER)
-                            .add_property("offer_view", message.get_int_property("offer_view"))
-                            .add_property("locked", false)
+                            .addProperty("offer_view", message.getIntProperty("offer_view"))
+                            .addProperty("locked", false)
             );
     }
 
-    private void handle_ackOffer_message(PaxosMessage<T> message){
-        if ( message.get_bool_property("locked") )
-            viewResources.put_locked_ack(message.body, message.get_int_property("offer_view"));
+    private void handleAckOfferMessage(PaxosMessage<T> message){
+        if ( message.getBoolProperty("locked") )
+            resources.putLockedAck(message.body, message.getIntProperty("offer_view"));
 
-        if ( viewResources.countdown_AckOffer() ) {
-            if ( viewResources.exists_locked_ack() )
-                lock( viewResources.getLock(), viewResources.getLockView() );
+        if ( resources.countdownAckOffer() ) {
+            if ( resources.isExistsLockedAck() )
+                lock( resources.getLock(), resources.getLockView() );
 
             sendToReplicas(
                     msgToReplicas(value, PaxosMessageType.LOCK)
@@ -163,59 +163,58 @@ public class Paxos<T extends Comparable<T>> extends ViewChangeAbleNode<T> {
         }
     }
 
-    private void handle_lock_message(PaxosMessage<T> message) {
-        viewResources.lock(message.from, message.body);
+    private void handleLockMessage(PaxosMessage<T> message) {
+        resources.lock(message.from, message.body);
         send(
                 msgToOne(message.from, null, PaxosMessageType.ACK_LOCK)
         );
     }
 
-    private void handle_ackLock_message() {
-        if ( viewResources.countdown_AckLock() )
+    private void handleAckLockMessage() {
+        if ( resources.countdownAckLock() )
             sendToReplicas(
                     msgToReplicas(value, PaxosMessageType.DONE)
             );
     }
 
-    private void handle_done_message(PaxosMessage<T> message){
-        viewResources.done(message.from, message.body);
-        if ( viewResources.countdown_Done() ) {
-            view_update();
+    private void handleDoneMessage(PaxosMessage<T> message){
+        resources.done(message.from, message.body);
+        if ( resources.countdownDone() ) {
+            viewUpdate();
         }
     }
 
-    private void handle_vote_message(PaxosMessage<T> message){
-        viewResources.put_secret(message.from, message.get_int_property("share"));
-        if ( viewResources.countdown_Vote() ) {
-            compute_leader();
+    private void handleVoteMessage(PaxosMessage<T> message){
+        resources.putSecret(message.from, message.getIntProperty("share"));
+        if ( resources.countdownVote() ) {
+            computeLeader();
             sendToReplicas(
-                    msgToReplicas(viewResources.getPartyVal(L), PaxosMessageType.VC)
-                            .add_property("state", viewResources.getPartyState(L))
+                    msgToReplicas(resources.getPartyValue(leader), PaxosMessageType.VC)
+                            .addProperty("state", resources.getPartyState(leader))
             );
         }
     }
 
-    private void handle_vc_message(PaxosMessage<T> message) {
-        viewResources.putVCState(message.get_state_property("state"), message.body, L);
+    private void handleVcMessage(PaxosMessage<T> message) {
+        resources.putVCState(message.getStateProperty("state"), message.body);
 
-        if ( viewResources.countdown_VCState() ) {
-            switch( viewResources.VCState() ) {
-                case DONE:
-                    commit(viewResources.getPartyVal(L));
-                    break;
-                case LOCK:
-                    lock(viewResources.getPartyVal(L), view());
-                    break;
-                case NONE:
-                    unlock();
-                    break;
-            }
-            view_update();
+        if ( resources.countdownVCState() ) {
+
+            if ( resources.isExistsDone() || resources.isAllLock() )
+                commit(resources.getVCValue(leader));
+
+            else if ( resources.isExistsLock() )
+                lock(resources.getVCValue(leader), view());
+
+            else
+                unlock();
+
+            viewUpdate();
         }
     }
 
-    private void compute_leader(){
-        L = secretShare.decode(view(), viewResources.getShares());
+    private void computeLeader(){
+        leader = secretshare.decode(view(), resources.getShares());
     }
 
     private PaxosMessage<T> msgToOne(int to, T body, PaxosMessageType type){
