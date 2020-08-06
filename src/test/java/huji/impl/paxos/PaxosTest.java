@@ -4,8 +4,10 @@ import huji.channel.CommunicationChannel;
 import huji.channel.impl.AsyncChannel;
 import huji.impl.dummy.DummyNode;
 import huji.impl.dummy.DummyValue;
+import huji.impl.paxos.messages.PaxosMessage;
 import huji.interfaces.SecretShare;
 import huji.logger.Log;
+import huji.logger.LogType;
 import huji.logger.Logger;
 import huji.message.Message;
 import huji.interfaces.impl.ShamirSecretShare;
@@ -34,8 +36,13 @@ class PaxosTest<T extends Comparable<T>> extends Paxos<T> {
             synchronized (System.out) {
                 System.out.println(message);
             }
-        else if ( ! out_restrictions.contains(message.to) )
+        else if ( ! out_restrictions.contains(message.to) ) {
             super.send(message);
+        }
+
+        logger.add(
+                new Log(message.toString(), LogType.Message)
+        );
     }
 
     @Override
@@ -76,10 +83,66 @@ class PaxosTest<T extends Comparable<T>> extends Paxos<T> {
 
     @Override
     protected boolean handle(Message<T> msg) {
+
+        /*
         logger.add(
                 new Log(msg.toString())
         );
+        */
+
         return super.handle(msg);
+    }
+
+    @Override
+    public void sendToReplicas(Message<T> message) {
+
+        super.sendToReplicas(message);
+
+        if (message instanceof PaxosMessage){
+            switch( ((PaxosMessage<T>) message).ptype ){
+                case OFFER:
+                    logger.add(
+                            new Log(message.toString(), LogType.Offer)
+                    );
+                    break;
+                case LOCK:
+                    logger.add(
+                            new Log(message.toString(), LogType.Lock)
+                    );
+                    break;
+                case DONE:
+                    logger.add(
+                            new Log(message.toString(), LogType.Done)
+                    );
+                    break;
+                case VOTE:
+                    logger.add(
+                            new Log(message.toString(), LogType.Vote)
+                    );
+                    break;
+                case VC:
+                    logger.add(
+                            new Log(message.toString(), LogType.VC)
+                    );
+                    break;
+            }
+        }
+    }
+
+    @Override
+    protected void lock(T val, int view) {
+        super.lock(val, view);
+        logger.add(
+                new Log(val.toString(), LogType.LockOnValue)
+        );
+    }
+
+    @Override
+    protected void commit(T value) {
+        super.commit(value);
+        logger.add(
+                new Log(value.toString(), LogType.Commit)
+        );
     }
 
     /*
