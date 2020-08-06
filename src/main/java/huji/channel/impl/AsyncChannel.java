@@ -67,17 +67,8 @@ public class AsyncChannel<T extends Comparable<T>> extends Process implements Co
         wakeup();
     }
 
-    @Override
-    public Iterable<Integer> getAll() {
-        return parties.keySet();
-    }
+    @Override public Iterable<Integer> getAll() { return parties.keySet(); }
+    @Override public Iterable<Integer> getReplicas() { return replicas; }
 
-    @Override
-    public Iterable<Integer> getReplicas() {
-        return replicas;
-    }
-
-    public int getID(){
-        return ids.next();
-    }
+    public int getID(){ return ids.next(); }
 }

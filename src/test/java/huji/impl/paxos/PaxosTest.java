@@ -49,21 +49,10 @@ class PaxosTest<T extends Comparable<T>> extends Paxos<T> {
             super.receive(message);
     }
 
-    public void outBlock(int replica) {
-        out_restrictions.add(replica);
-    }
-
-    public void outUnblock(int replica) {
-        out_restrictions.remove(replica);
-    }
-
-    public void inBlock(int replica) {
-        in_restrictions.add(replica);
-    }
-
-    public void inUnblock(int replica) {
-        in_restrictions.remove(replica);
-    }
+    public void outBlock(int replica) { out_restrictions.add(replica); }
+    public void outUnblock(int replica) { out_restrictions.remove(replica); }
+    public void inBlock(int replica) { in_restrictions.add(replica); }
+    public void inUnblock(int replica) { in_restrictions.remove(replica); }
 
     public void block(int replica) {
         outBlock(replica);
@@ -78,18 +67,6 @@ class PaxosTest<T extends Comparable<T>> extends Paxos<T> {
     /*
      * Log able
      */
-
-    @Override
-    protected boolean handle(Message<T> msg) {
-
-        /*
-        logger.add(
-                new Log(msg.toString())
-        );
-        */
-
-        return super.handle(msg);
-    }
 
     @Override
     public void sendToReplicas(Message<T> message) {

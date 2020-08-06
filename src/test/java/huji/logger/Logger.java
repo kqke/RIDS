@@ -39,13 +39,8 @@ public class Logger {
         }
     }
 
-    public void conditionTrue( Conditions condition ) {
-        conditions_tbl.setValue(condition,true);
-    }
-
-    public void conditionFalse( Conditions condition ) {
-        conditions_tbl.setValue(condition,false);
-    }
+    public void conditionTrue( Conditions condition ) { conditions_tbl.setValue(condition,true); }
+    public void conditionFalse( Conditions condition ) { conditions_tbl.setValue(condition,false); }
 
     public Iterator<Log> get() {
         return logs.iterator();

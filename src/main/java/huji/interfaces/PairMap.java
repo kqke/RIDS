@@ -40,7 +40,6 @@ public class PairMap<K,L,R> {
         return put(key, map.get(key).left, rvalue).right;
     }
 
-
     public void remove(K key, L lvalue, R rvalue) {
         map.remove(key);
     }
