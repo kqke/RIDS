@@ -5,7 +5,7 @@ import huji.interfaces.Factory;
 import huji.message.Message;
 import huji.node.Node;
 
-public class DummyNode<T> extends Node<T> {
+public class DummyNode<T extends Comparable<T>> extends Node<T> {
     final Factory<T,String> factory;
 
     public DummyNode(CommunicationChannel<T> channel, Factory<T,String> factory) {
@@ -20,7 +20,14 @@ public class DummyNode<T> extends Node<T> {
 
     @Override
     protected void runningProcess() {
-        // TODO: send to all
+        for ( int replica : channel.getReplicas() )
+            for (int i = 0; i < 20; i++)
+                send(new Message<>(
+                        0,
+                        replica,
+                        factory.get( "r" + replica + "i" + i ),
+                        true
+                ));
         shutdown();
     }
 

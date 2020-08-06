@@ -14,7 +14,7 @@ public class Logger {
         print_commits
     }
 
-    public Logger(){
+    public Logger() {
         this.logs = new ConcurrentLinkedQueue<>();
 
         this.conditions_tbl = new ConditionsTable<>(Arrays.asList(Conditions.values()),false);
@@ -26,9 +26,8 @@ public class Logger {
 
     public void add(Log log){
         logs.add(log);
-        for ( Conditions condition : Conditions.values() ) {
+        for ( Conditions condition : Conditions.values() )
             printCondition( log, condition );
-        }
     }
 
     private void printCondition ( Log log, Conditions condition ) {
