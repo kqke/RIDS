@@ -1,21 +1,25 @@
 package huji.impl.paxos;
 
+import huji.channel.CommunicationChannel;
+import huji.impl.dummy.DummyNode;
+import huji.impl.dummy.DummyValue;
 import huji.impl.paxos.messages.PaxosMessage;
 import huji.interfaces.Factory;
 import huji.logger.Logger;
 
-import java.util.Arrays;
 import java.util.Map;
 import java.util.Scanner;
 
 public class UserCommandLine<T extends Comparable<T>> implements Runnable {
     Map<Integer, PaxosTest<T>> replicas;
+    CommunicationChannel<T> channel;
     final Factory<T,String> factory;
 
     boolean is_run = true;
 
-    public UserCommandLine(Map<Integer, PaxosTest<T>> replicas, Factory<T,String> factory) {
+    public UserCommandLine(Map<Integer, PaxosTest<T>> replicas, CommunicationChannel<T> channel, Factory<T,String> factory) {
         this.replicas = replicas;
+        this.channel = channel;
         this.factory = factory;
     }
 
@@ -64,6 +68,9 @@ public class UserCommandLine<T extends Comparable<T>> implements Runnable {
                 break;
             case "user":
                 cmdUser(Integer.parseInt(splitStr[1]), concat(splitStr,2));
+                break;
+            case "dummy":
+                cmdDummy();
                 break;
             case "help":
                 cmdHelp();
@@ -165,6 +172,14 @@ public class UserCommandLine<T extends Comparable<T>> implements Runnable {
      * Help
      */
 
+    private void cmdDummy() {
+        new DummyNode<>(channel, factory).start();
+    }
+
+    /*
+     * Help
+     */
+
     private void cmdHelp() {
         System.out.println("listen [type] \t\t 0 = all, 1 = protocol, 2 = commits");
         System.out.println("block [replica] [replica to block]");
@@ -174,5 +189,6 @@ public class UserCommandLine<T extends Comparable<T>> implements Runnable {
         System.out.println("crash [replica] \t\t Cannot undo!!");
         System.out.println("history [replica] [start storage]");
         System.out.println("user [replica] [...string]");
+        System.out.println("dummy");
     }
 }

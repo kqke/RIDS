@@ -15,7 +15,7 @@ import huji.interfaces.impl.ShamirSecretShare;
 import java.util.*;
 
 class PaxosTest<T extends Comparable<T>> extends Paxos<T> {
-    public static final int N = 6;
+    public static final int N = 7;
     public static final Logger logger = new Logger();
     public static final SecretShare secret_share = new ShamirSecretShare(N, N/2);
 
@@ -40,9 +40,7 @@ class PaxosTest<T extends Comparable<T>> extends Paxos<T> {
             super.send(message);
         }
 
-        logger.add(
-                new Log(message.toString(), LogType.Message)
-        );
+        logger.add(new Log(LogType.Message, getID(), view(), storage(), message.toString() ) );
     }
 
     @Override
@@ -99,50 +97,40 @@ class PaxosTest<T extends Comparable<T>> extends Paxos<T> {
         super.sendToReplicas(message);
 
         if (message instanceof PaxosMessage){
-            switch( ((PaxosMessage<T>) message).ptype ){
+            PaxosMessage<T> pmessage = (PaxosMessage<T>) message;
+            String data = (pmessage.body != null ) ?
+                    pmessage.body.toString() + " " + pmessage.properties.toString() :
+                    pmessage.properties.toString();
+            switch( pmessage.ptype ){
                 case OFFER:
-                    logger.add(
-                            new Log(message.toString(), LogType.Offer)
-                    );
+                    logger.add(new Log(LogType.Offer, pmessage.from, pmessage.view, pmessage.storage, data ) );
                     break;
                 case LOCK:
-                    logger.add(
-                            new Log(message.toString(), LogType.Lock)
-                    );
+                    logger.add(new Log(LogType.Lock, pmessage.from, pmessage.view, pmessage.storage, data ) );
                     break;
                 case DONE:
-                    logger.add(
-                            new Log(message.toString(), LogType.Done)
-                    );
+                    logger.add(new Log(LogType.Done, pmessage.from, pmessage.view, pmessage.storage, data ) );
                     break;
                 case VOTE:
-                    logger.add(
-                            new Log(message.toString(), LogType.Vote)
-                    );
+                    logger.add(new Log(LogType.Vote, pmessage.from, pmessage.view, pmessage.storage, data ) );
                     break;
                 case VC:
-                    logger.add(
-                            new Log(message.toString(), LogType.VC)
-                    );
+                    logger.add(new Log(LogType.VC, pmessage.from, pmessage.view, pmessage.storage, data ) );
                     break;
             }
         }
     }
 
     @Override
-    protected void lock(T val, int view) {
-        super.lock(val, view);
-        logger.add(
-                new Log(val.toString(), LogType.LockOnValue)
-        );
+    protected void lock(T value, int view) {
+        super.lock(value, view);
+        logger.add(new Log(LogType.LockOnValue, getID(), view(), storage(), value.toString() ) );
     }
 
     @Override
     protected void commit(T value) {
         super.commit(value);
-        logger.add(
-                new Log(value.toString(), LogType.Commit)
-        );
+        logger.add(new Log(LogType.Commit, getID(), view(), storage(), value.toString() ) );
     }
 
     /*
@@ -164,7 +152,7 @@ class PaxosTest<T extends Comparable<T>> extends Paxos<T> {
         channel.start();
         dummy.start();
         replicas.values().forEach(Thread::start);
-        new UserCommandLine<>(replicas, DummyValue::new).run();
+        new UserCommandLine<>(replicas, channel, DummyValue::new).run();
 
         // shutdown
         dummy.shutdown();
