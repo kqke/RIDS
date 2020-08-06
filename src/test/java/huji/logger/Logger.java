@@ -5,21 +5,47 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class Logger {
     public final Queue<Log> logs;
-    public boolean to_print = false;
+    private final Map<Conditions,Boolean> prints_conditions;
+    private final Map<Conditions,LogType> type_register_to_condition;
+    public enum Conditions {
+        print_all,
+
+    }
 
     public Logger(){
         this.logs = new ConcurrentLinkedQueue<>();
+
+        this.prints_conditions = new HashMap<>();
+        for ( Conditions condition : Conditions.values() ) {
+            conditionFalse( condition );
+        }
+
+        this.type_register_to_condition = new HashMap<>();
+
     }
 
     public void add(Log log){
         logs.add(log);
+        for ( Conditions condition : Conditions.values() ) {
+            printCondition( log, condition );
+        }
+    }
 
-        if (to_print) {
+    private void printCondition ( Log log, Conditions condition ) {
+        if ( prints_conditions.get(condition) & type_register_to_condition. ) {
             synchronized (System.out) {
-                if (to_print)
+                if ( prints_conditions.get(condition) )
                     System.out.println(log);
             }
         }
+    }
+
+    public void conditionTrue( Conditions condition ) {
+        prints_conditions.put( condition, true );
+    }
+
+    public void conditionFalse( Conditions condition ) {
+        prints_conditions.put( condition, false );
     }
 
     public Iterator<Log> get() {

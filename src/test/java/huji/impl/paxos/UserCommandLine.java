@@ -2,6 +2,7 @@ package huji.impl.paxos;
 
 import huji.impl.paxos.messages.PaxosMessage;
 import huji.interfaces.Factory;
+import huji.logger.Logger;
 
 import java.util.Map;
 import java.util.Scanner;
@@ -135,10 +136,10 @@ public class UserCommandLine<T extends Comparable<T>> implements Runnable {
      */
 
     private void cmdListen() {
-        PaxosTest.logger.to_print = true;
+        PaxosTest.logger.conditionTrue( Logger.Conditions.print_all );
         waitUntilPress();
         synchronized (System.out) {
-            PaxosTest.logger.to_print = false;
+            PaxosTest.logger.conditionFalse( Logger.Conditions.print_all );
         }
     }
 
@@ -164,6 +165,5 @@ public class UserCommandLine<T extends Comparable<T>> implements Runnable {
         System.out.println("crash [replica] \t\t Cannot undo!!");
         System.out.println("history [replica] [start storage]");
         System.out.println("user [replica] [...string]");
-        System.out.println("");
     }
 }
