@@ -1,27 +1,27 @@
 package huji.logger;
 
+import huji.interfaces.ConditionsTable;
+
 import java.util.*;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class Logger {
     public final Queue<Log> logs;
-    private final Map<Conditions,Boolean> prints_conditions;
-    private final Map<Conditions,LogType> type_register_to_condition;
+    private final ConditionsTable<Conditions,Boolean,LogType> conditions_tbl;
     public enum Conditions {
         print_all,
-
+        print_protocol_events,
+        print_commits
     }
 
     public Logger(){
         this.logs = new ConcurrentLinkedQueue<>();
 
-        this.prints_conditions = new HashMap<>();
-        for ( Conditions condition : Conditions.values() ) {
-            conditionFalse( condition );
-        }
-
-        this.type_register_to_condition = new HashMap<>();
-
+        this.conditions_tbl = new ConditionsTable<>(Arrays.asList(Conditions.values()),false);
+        this.conditions_tbl.register(Conditions.print_all,Arrays.asList(LogType.values()));
+        this.conditions_tbl.register(Conditions.print_protocol_events, Arrays.asList(LogType.values()))
+                            .unregister(Conditions.print_protocol_events,LogType.Message);
+        this.conditions_tbl.register(Conditions.print_commits,LogType.Commit);
     }
 
     public void add(Log log){
@@ -32,20 +32,20 @@ public class Logger {
     }
 
     private void printCondition ( Log log, Conditions condition ) {
-        if ( prints_conditions.get(condition) & type_register_to_condition. ) {
+        if ( conditions_tbl.getValue(condition) & conditions_tbl.contains(condition,log.type)) {
             synchronized (System.out) {
-                if ( prints_conditions.get(condition) )
+                if ( conditions_tbl.getValue(condition) )
                     System.out.println(log);
             }
         }
     }
 
     public void conditionTrue( Conditions condition ) {
-        prints_conditions.put( condition, true );
+        conditions_tbl.setValue(condition,true);
     }
 
     public void conditionFalse( Conditions condition ) {
-        prints_conditions.put( condition, false );
+        conditions_tbl.setValue(condition,false);
     }
 
     public Iterator<Log> get() {

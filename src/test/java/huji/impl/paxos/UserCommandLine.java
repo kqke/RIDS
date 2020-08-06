@@ -34,7 +34,7 @@ public class UserCommandLine<T extends Comparable<T>> implements Runnable {
         String[] splitStr = str.split("\\s+");
         switch(splitStr[0]) {
             case "listen":
-                cmdListen();
+                cmdListen(Integer.parseInt(splitStr[1]));
                 break;
             case "block":
                 cmdBlock(Integer.parseInt(splitStr[1]), Integer.parseInt(splitStr[2]));
@@ -135,11 +135,12 @@ public class UserCommandLine<T extends Comparable<T>> implements Runnable {
      * Listen
      */
 
-    private void cmdListen() {
-        PaxosTest.logger.conditionTrue( Logger.Conditions.print_all );
+    private void cmdListen(int type) {
+        Logger.Conditions condition = Logger.Conditions.values()[type];
+        PaxosTest.logger.conditionTrue( condition );
         waitUntilPress();
         synchronized (System.out) {
-            PaxosTest.logger.conditionFalse( Logger.Conditions.print_all );
+            PaxosTest.logger.conditionFalse( condition );
         }
     }
 
@@ -157,7 +158,7 @@ public class UserCommandLine<T extends Comparable<T>> implements Runnable {
      */
 
     private void cmdHelp() {
-        System.out.println("listen");
+        System.out.println("listen [type] \t\t 0 = all, 1 = protocol, 2 = commits");
         System.out.println("block [replica] [replica to block]");
         System.out.println("block_all [replica]");
         System.out.println("unblock [replica] [replica to unblock]");

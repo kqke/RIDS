@@ -34,8 +34,8 @@ public class PaxosViewResources<T extends Comparable<T>> {
 
     /* Even */
 
-    private final PairMap<T, PaxosVCState> offer_values = new PairMap<>();
-
+    private final PairMap<Integer, T, PaxosVCState> offer_values = new PairMap<>();
+    
     public void lock(int from, T val) { offer_values.put(from, val, LOCK); }
     public void done(int from, T val) { offer_values.put(from, val, DONE); }
 
