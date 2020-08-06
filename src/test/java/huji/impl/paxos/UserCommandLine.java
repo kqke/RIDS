@@ -102,7 +102,7 @@ public class UserCommandLine<T extends Comparable<T>> implements Runnable {
      */
 
     private void cmdBlock(int replica, int to_unblock) {
-        replicas.get(replica).unblock(to_unblock);
+        replicas.get(replica).outUnblock(to_unblock);
     }
 
     private void cmd_block_all(int replica) {
@@ -111,7 +111,7 @@ public class UserCommandLine<T extends Comparable<T>> implements Runnable {
     }
 
     private void cmdUnblock(int replica, int to_block) {
-        replicas.get(replica).block(to_block);
+        replicas.get(replica).outBlock(to_block);
     }
 
     private void cmdUnblockAll(int replica) {

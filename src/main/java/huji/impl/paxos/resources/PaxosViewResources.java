@@ -19,50 +19,35 @@ public class PaxosViewResources<T extends Comparable<T>> {
 
     /* Ack offer */
 
-    T temp_lock_val = null;
+    T temp_lock_value = null;
     int temp_lock_view = -1;
 
     public void putLockedAck(T value, int view) {
         if ( view > temp_lock_view ) {
-            temp_lock_val = value;
+            temp_lock_value = value;
             temp_lock_view = view;
         }
     }
     public boolean isExistsLockedAck(){ return temp_lock_view != -1; }
-    public T getLock(){ return temp_lock_val; }
+    public T getLockValue(){ return temp_lock_value; }
     public int getLockView(){ return temp_lock_view; }
 
     /* Even */
 
     private final PairMap<T, PaxosVCState> offer_values = new PairMap<>();
 
-    public void lock(int from, T val) {
-        offer_values.put(from, val, LOCK);
-    }
+    public void lock(int from, T val) { offer_values.put(from, val, LOCK); }
+    public void done(int from, T val) { offer_values.put(from, val, DONE); }
 
-    public void done(int from, T val) {
-        offer_values.put(from, val, DONE);
-    }
-
-    public T getPartyValue(int i) {
-        return offer_values.getLvalue(i);
-    }
-
-    public PaxosVCState getPartyState(int i) {
-        return offer_values.getRvalueOrDefault(i, NONE);
-    }
+    public T getPartyValue(int i) { return offer_values.getLvalue(i); }
+    public PaxosVCState getPartyState(int i) { return offer_values.getRvalueOrDefault(i, NONE); }
 
     /* Secret share */
 
     private final Map<Integer, Integer> shares = new HashMap<>();
 
-    public void putSecret(int from, int val) {
-        shares.put(from, val);
-    }
-
-    public Map<Integer, Integer> getShares() {
-        return shares;
-    }
+    public void putSecret(int from, int val) { shares.put(from, val); }
+    public Map<Integer, Integer> getShares() { return shares; }
 
     /* VC */
 
@@ -88,17 +73,9 @@ public class PaxosViewResources<T extends Comparable<T>> {
         }
     }
 
-    public boolean isExistsDone() {
-        return exists_done;
-    }
-
-    public boolean isExistsLock() {
-        return exists_lock;
-    }
-
-    public boolean isAllLock() {
-        return exists_lock && all_lock;
-    }
+    public boolean isExistsDone() { return exists_done; }
+    public boolean isExistsLock() { return exists_lock; }
+    public boolean isAllLock() { return exists_lock && all_lock; }
 
     public T getVCValue(int leader) {
         if ( leader_value != null )

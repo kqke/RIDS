@@ -63,12 +63,9 @@ public abstract class ViewChangeAbleNode<T extends Comparable<T>> extends Replic
         }
     }
 
-    private void viewChanged() {
+    private void resetSentThisView() {
         sent_this_view = false;
-        onViewChange();
     }
-
-    protected void onViewChange(){}
 
     /*
      * Storage able
@@ -77,21 +74,20 @@ public abstract class ViewChangeAbleNode<T extends Comparable<T>> extends Replic
         return storage;
     }
 
-    private void storageUpdate() {
+    protected void storageUpdate() {
         ++this.storage;
-        viewChanged();
+        resetSentThisView();
         onStorageUpdate();
     }
 
-    private void storageUpdate(int storage) {
+    protected void storageUpdate(int storage) {
         this.storage = storage;
-        viewChanged();
+        resetSentThisView();
         onStorageUpdate();
     }
 
     protected void commit(T value) {
         super.commit(storage(), value);
-        storageUpdate();
     }
 
     protected void onStorageUpdate(){}
@@ -101,13 +97,13 @@ public abstract class ViewChangeAbleNode<T extends Comparable<T>> extends Replic
      */
     protected void viewUpdate(){
         ++this.view;
-        viewChanged();
+        resetSentThisView();
         onViewUpdate( this.view, view );
     }
 
     protected void viewUpdate(int view){
         this.view = view;
-        viewChanged();
+        resetSentThisView();
         onViewUpdate( this.view, view );
     }
 

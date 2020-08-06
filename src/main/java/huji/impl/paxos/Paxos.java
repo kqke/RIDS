@@ -105,7 +105,7 @@ public class Paxos<T extends Comparable<T>> extends ViewChangeAbleNode<T> {
 
         PaxosMessage<T> paxos_msg = (PaxosMessage<T>) msg;
 
-        switch(paxos_msg.ptype){
+        switch(paxos_msg.ptype) {
             case OFFER:
                 handleOfferMessage(paxos_msg);
                 break;
@@ -155,7 +155,7 @@ public class Paxos<T extends Comparable<T>> extends ViewChangeAbleNode<T> {
 
         if ( resources.countdownAckOffer() ) {
             if ( resources.isExistsLockedAck() )
-                lock( resources.getLock(), resources.getLockView() );
+                lock( resources.getLockValue(), resources.getLockView() );
 
             sendToReplicas(
                     msgToReplicas(value, PaxosMessageType.LOCK)
@@ -200,8 +200,10 @@ public class Paxos<T extends Comparable<T>> extends ViewChangeAbleNode<T> {
 
         if ( resources.countdownVCState() ) {
 
-            if ( resources.isExistsDone() || resources.isAllLock() )
+            if ( resources.isExistsDone() || resources.isAllLock() ) {
                 commit(resources.getVCValue(leader));
+                storageUpdate();
+            }
 
             else if ( resources.isExistsLock() )
                 lock(resources.getVCValue(leader), view());
@@ -218,26 +220,24 @@ public class Paxos<T extends Comparable<T>> extends ViewChangeAbleNode<T> {
     }
 
     private PaxosMessage<T> msgToOne(int to, T body, PaxosMessageType type){
-        return
-                new PaxosMessage<>(
+        return new PaxosMessage<>(
                 id,
                 to,
                 body,
                 view(),
                 storage(),
-                type);
+                type
+        );
     }
 
     private PaxosMessage<T> msgToReplicas(T body, PaxosMessageType type){
-        return
-                new PaxosMessage<>(
-                        id,
-                        -1,
-                        body,
-                        view(),
-                        storage(),
-                        type
-                );
+        return new PaxosMessage<>(
+                id,
+                -1,
+                body,
+                view(),
+                storage(),
+                type
+        );
     }
-
 }

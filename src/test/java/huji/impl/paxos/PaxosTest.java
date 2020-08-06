@@ -17,7 +17,8 @@ class PaxosTest<T extends Comparable<T>> extends Paxos<T> {
     public static final Logger logger = new Logger();
     public static final SecretShare secret_share = new ShamirSecretShare(N, N/2);
 
-    Set<Integer> restrictions = new HashSet<>(N);
+    Set<Integer> out_restrictions = new HashSet<>(N);
+    Set<Integer> in_restrictions = new HashSet<>(N);
 
     public PaxosTest(CommunicationChannel<T> channel) {
         super(channel, N, secret_share);
@@ -33,16 +34,40 @@ class PaxosTest<T extends Comparable<T>> extends Paxos<T> {
             synchronized (System.out) {
                 System.out.println(message);
             }
-        else if ( ! restrictions.contains(message.to) )
+        else if ( ! out_restrictions.contains(message.to) )
             super.send(message);
     }
 
+    @Override
+    public void receive(Message<T> message) {
+        if ( ! in_restrictions.contains(message.from) )
+            super.receive(message);
+    }
+
+    public void outBlock(int replica) {
+        out_restrictions.add(replica);
+    }
+
+    public void outUnblock(int replica) {
+        out_restrictions.remove(replica);
+    }
+
+    public void inBlock(int replica) {
+        in_restrictions.add(replica);
+    }
+
+    public void inUnblock(int replica) {
+        in_restrictions.remove(replica);
+    }
+
     public void block(int replica) {
-        restrictions.add(replica);
+        outBlock(replica);
+        inBlock(replica);
     }
 
     public void unblock(int replica) {
-        restrictions.remove(replica);
+        outUnblock(replica);
+        inUnblock(replica);
     }
 
     /*
