@@ -4,12 +4,15 @@ import huji.impl.paxos.messages.PaxosMessage;
 import huji.interfaces.Factory;
 import huji.logger.Logger;
 
+import java.util.Arrays;
 import java.util.Map;
 import java.util.Scanner;
 
 public class UserCommandLine<T extends Comparable<T>> implements Runnable {
     Map<Integer, PaxosTest<T>> replicas;
     final Factory<T,String> factory;
+
+    boolean is_run = true;
 
     public UserCommandLine(Map<Integer, PaxosTest<T>> replicas, Factory<T,String> factory) {
         this.replicas = replicas;
@@ -18,13 +21,18 @@ public class UserCommandLine<T extends Comparable<T>> implements Runnable {
 
     @Override
     public void run() {
-        try(Scanner scan = new Scanner(System.in)){
-            String str = "";
-            while ( ! str.equals("exit") ) {
-                str = scan.next();
-                handle(str);
+        while (is_run)
+            try(Scanner scan = new Scanner(System.in)) {
+                String str = "";
+                while ( ! str.equals("exit") ) {
+                    str = scan.nextLine();
+                    handle(str);
+                }
+                is_run = false;
+            } catch (Exception e) {
+                e.printStackTrace();
+                is_run = false;
             }
-        } catch (Exception ignored){}
     }
 
     /*

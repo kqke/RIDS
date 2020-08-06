@@ -44,15 +44,15 @@ public abstract class ReplicaNode<T extends Comparable<T>> extends Node<T> {
         return getCommitted(start, -1);
     }
 
+    protected boolean isClientMessagesEmpty() {
+        return client_messages.isEmpty();
+    }
+
     protected T peekClientMessage() {
         return client_messages.peek();
     }
 
     @Override
-    protected boolean runningCondition() {
-        return super.runningCondition() || !client_messages.isEmpty();
-    }
-
     protected boolean handle(Message<T> msg) {
         if ( msg.isClient ) {
             client_messages.add( msg.body );

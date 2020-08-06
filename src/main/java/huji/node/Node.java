@@ -53,12 +53,13 @@ public abstract class Node<T> extends Process implements CommunicationAble<T> {
 
     @Override
     protected boolean runningCondition() {
-        return !messages.isEmpty();
+        return ! messages.isEmpty();
     }
 
     @Override
     protected void runningProcess() {
-        handle(messages.remove());
+        if ( ! messages.isEmpty() )
+            handle(messages.remove());
     }
 
     protected abstract boolean handle(Message<T> msg);

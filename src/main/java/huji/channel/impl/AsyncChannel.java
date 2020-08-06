@@ -38,16 +38,17 @@ public class AsyncChannel<T extends Comparable<T>> extends Process implements Co
 
     @Override
     protected boolean runningCondition() {
-        return !communication_queue.isEmpty();
+        return ! communication_queue.isEmpty();
     }
 
     @Override
     protected void runningProcess() {
-        try {
-            Message<T> msg = communication_queue.take();
-            parties.get(msg.to).receive(msg);
-        }
-        catch (Exception ignored){}
+        if ( ! communication_queue.isEmpty() )
+            try {
+                Message<T> msg = communication_queue.take();
+                parties.get(msg.to).receive(msg);
+            }
+            catch (Exception ignored){}
     }
 
     public void send(Message<T> message) {

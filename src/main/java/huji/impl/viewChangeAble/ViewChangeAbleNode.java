@@ -19,7 +19,13 @@ public abstract class ViewChangeAbleNode<T extends Comparable<T>> extends Replic
 
     @Override
     protected boolean runningCondition() {
-        return super.runningCondition() || !sent_this_view;
+        return super.runningCondition() || !sent_this_view && ! isClientMessagesEmpty();
+    }
+
+    @Override
+    protected void runningProcess() {
+        sendMessageIfNeeded();
+        super.runningProcess();
     }
 
     @Override
@@ -32,10 +38,7 @@ public abstract class ViewChangeAbleNode<T extends Comparable<T>> extends Replic
 
         ViewAbleMessage<T> viewable_msg = (ViewAbleMessage<T>)msg;
         viewChangeIfNeeded(viewable_msg);
-        if( ! sent_this_view ) {
-            sendViewBeginningMessage();
-            sent_this_view = true;
-        }
+        sendMessageIfNeeded();
 
         switch (viewable_msg.type) {
             case HISTORY_REQ:
@@ -60,6 +63,13 @@ public abstract class ViewChangeAbleNode<T extends Comparable<T>> extends Replic
         if ( msg.storage > this.storage ) {
             reqHistory(this.storage, msg.storage);
             storageUpdate(msg.storage);
+        }
+    }
+
+    protected void sendMessageIfNeeded() {
+        if ( ! sent_this_view && ! isClientMessagesEmpty() ) {
+            sendViewBeginningMessage();
+            sent_this_view = true;
         }
     }
 

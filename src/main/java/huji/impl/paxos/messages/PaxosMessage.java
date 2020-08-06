@@ -25,7 +25,8 @@ public class PaxosMessage<T extends Comparable<T>> extends ViewAbleMessage<T> {
     }
 
     public PaxosMessage(PaxosMessage<T> other, int to) {
-        this(other.from, to, other.body, other.isClient, other.view, other.storage, other.type, other.ptype);
+        super(other, to);
+        this.ptype = other.ptype;
     }
 
     @Override
@@ -34,7 +35,7 @@ public class PaxosMessage<T extends Comparable<T>> extends ViewAbleMessage<T> {
     }
 
     @Override
-    public PaxosMessage<T> addProperty(String key, Object value) {
+    public PaxosMessage<T> addProperty(String key, Object value){
         super.addProperty(key, value);
         return this;
     }

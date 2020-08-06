@@ -38,29 +38,15 @@ public class Message<T> extends Delayable {
     }
 
     public Message<T> addProperty(String key, Object value) {
-        this.properties.putIfAbsent(key, value);
+        this.properties.put(key, value);
         return this;
     }
 
-    public Object getProperty(String key) {
-        return this.properties.get(key);
-    }
-
-    public Map<Integer,T> getMapProperty(String key) {
-        return (Map<Integer,T>) this.properties.get(key);
-    }
-
-    public String getStringProperty(String key) {
-        return (String) this.properties.get(key);
-    }
-
-    public int getIntProperty(String key) {
-        return (Integer) this.properties.get(key);
-    }
-
-    public boolean getBoolProperty(String key) {
-        return (Boolean) this.properties.get(key);
-    }
+    public Object getProperty(String key) { return this.properties.get(key); }
+    public Map<Integer,T> getMapProperty(String key) { return (Map<Integer,T>) getProperty(key); }
+    public String getStringProperty(String key) { return (String) getProperty(key); }
+    public int getIntProperty(String key) { return (Integer) getProperty(key); }
+    public boolean getBoolProperty(String key) { return (Boolean) getProperty(key); }
 
     @Override
     public String toString() {
