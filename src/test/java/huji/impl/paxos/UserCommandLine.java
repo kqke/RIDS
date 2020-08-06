@@ -54,7 +54,10 @@ public class UserCommandLine<T extends Comparable<T>> implements Runnable {
                 cmdHistory(Integer.parseInt(splitStr[1]), Integer.parseInt(splitStr[2]));
                 break;
             case "user":
-                cmdUser(Integer.parseInt(splitStr[1]), splitStr[2]);
+                cmdUser(Integer.parseInt(splitStr[1]), concat(splitStr,2));
+                break;
+            case "help":
+                cmdHelp();
                 break;
             default:
                 System.out.println(str);
@@ -77,6 +80,14 @@ public class UserCommandLine<T extends Comparable<T>> implements Runnable {
                         null
                 )
         );
+    }
+
+    private String concat ( String[] splits, int idx ) {
+        String output = splits[idx];
+        for (int i = idx + 1; i < splits.length; i++) {
+            output = output.concat(splits[i]);
+        }
+        return output;
     }
 
     /*
@@ -102,7 +113,7 @@ public class UserCommandLine<T extends Comparable<T>> implements Runnable {
      */
 
     private void cmdBlock(int replica, int to_unblock) {
-        replicas.get(replica).outUnblock(to_unblock);
+        replicas.get(replica).block(to_unblock);
     }
 
     private void cmd_block_all(int replica) {
@@ -111,7 +122,7 @@ public class UserCommandLine<T extends Comparable<T>> implements Runnable {
     }
 
     private void cmdUnblock(int replica, int to_block) {
-        replicas.get(replica).outBlock(to_block);
+        replicas.get(replica).unblock(to_block);
     }
 
     private void cmdUnblockAll(int replica) {
@@ -138,5 +149,21 @@ public class UserCommandLine<T extends Comparable<T>> implements Runnable {
                 press = System.in.read();
             } catch (Exception ignored) {}
         }
+    }
+
+    /*
+     * Help
+     */
+
+    private void cmdHelp() {
+        System.out.println("listen");
+        System.out.println("block [replica] [replica to block]");
+        System.out.println("block_all [replica]");
+        System.out.println("unblock [replica] [replica to unblock]");
+        System.out.println("unblock_all [replica]");
+        System.out.println("crash [replica] \t\t Cannot undo!!");
+        System.out.println("history [replica] [start storage]");
+        System.out.println("user [replica] [...string]");
+        System.out.println("");
     }
 }
